@@ -1,0 +1,14 @@
+<package>
+  <description brief="gaussian_mixture">
+
+     gaussian_mixture
+
+  </description>
+  <author></author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/gaussian_mixture</url>
+
+</package>
+
+
