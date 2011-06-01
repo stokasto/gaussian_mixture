@@ -1,0 +1,23 @@
+# Allow *. syntax
+syntax:glob
+
+# Generated CMake stuff
+CMakeFiles
+CMakeScripts
+CMakeCache.txt
+Makefile
+*.cmake
+./bin
+./build
+.cproject
+.project
+.svn
+srv_gen
+msg_gen
+*.pcd
+*.ppm
+*.png
+*.jpg
+*.avi
+*.so
+*.swp
