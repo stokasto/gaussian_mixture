@@ -4,11 +4,11 @@
      gaussian_mixture
 
   </description>
-  <author></author>
+  <author>Jost Tobias Springenberg</author>
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/gaussian_mixture</url>
-	
+      
   <depend package="eigen" />
 
 </package>

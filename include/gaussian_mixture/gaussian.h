@@ -1,8 +1,9 @@
 #ifndef DISTRIBUTIONS_H_
 #define DISTRIBUTIONS_H_
 
-#include <cmath>
+#include <math.h>
 #include <Eigen/Core>
+#include <Eigen/Cholesky>
 
 namespace gmm
 {
@@ -29,13 +30,13 @@ namespace gmm
     {
     public:
       typedef Eigen::Matrix<g_float, DIM, DIM> MatrixType;
-      typedef Eigen::Vector<g_float, DIM> VectorType;
+      typedef Eigen::Matrix<g_float, DIM, 1> VectorType;
       const int dim;
 
     private:
       VectorType mean_;
       MatrixType covariance_;
-      MatrixType::LLT cholesky_; // preallocat cholesky decomposition
+      Eigen::LLT<MatrixType> cholesky_; // preallocate cholesky decomposition
       g_float partition_;
 
     public:
