@@ -72,7 +72,6 @@ namespace gmm
 }
 
 // --> see gmm_impl.hpp for implementation
-
 #include <gaussian_mixture/impl/gmm_impl.hpp>
 
 #endif /* GMM_H_ */

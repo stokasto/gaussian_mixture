@@ -23,9 +23,7 @@ namespace gmm
   g_float
   random_normal(g_float mu, g_float sigma);
 
-  /* definition of a n dimensional gaussian
-   * --> see gaussian_impl.hpp for implementation
-   */
+  /* definition of a n dimensional gaussian */
   template<int DIM>
     class Gaussian
     {
@@ -78,6 +76,7 @@ namespace gmm
 
 }
 
+// --> see gaussian_impl.hpp for implementation
 #include <gaussian_mixture/impl/gaussian_impl.hpp>
 
 #endif
