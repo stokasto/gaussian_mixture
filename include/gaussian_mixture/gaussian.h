@@ -60,9 +60,14 @@ namespace gmm
       g_float
       pdf(VectorType x) const;
       // project a gaussian to a lower dimensional version
-      template <int P_DIM>
-      Gaussian<P_DIM>
-      project(Eigen::VectorXd &dims) const;
+      template<int P_DIM>
+        Gaussian<P_DIM>
+        project(Eigen::VectorXd &dims) const;
+      // project to the first p dimensions
+      template<int P_DIM>
+        Gaussian<P_DIM>
+        project() const;
+
       void
       regression(VectorType x, Gaussian<DIM> &result) const;
 

@@ -176,6 +176,19 @@ namespace gmm
           result.mean()(i) = mean_(dims(i));
         return result;
       }
+
+  template<int DIM>
+    template<int P_DIM>
+      Gaussian<P_DIM>
+      project() const
+      {
+        Eigen::VectorXd dims(P_DIM);
+        for(int i = 0; i < P_DIM; ++i)
+          dims(i) = i;
+        // TODO: this could be done more efficiently by copying
+        //       the covariance matrix block wise
+        return project<P_DIM>(dims);
+      }
 }
 
 #endif /* GAUSSIAN_IMPL_HPP_ */
