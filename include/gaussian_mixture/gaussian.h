@@ -53,10 +53,18 @@ namespace gmm
       setMean(VectorType &mean);
 
       // methods
+      // draw a sample from the distribution
       VectorType
       draw() const;
+      // calculate the pdf function at position x
       g_float
       pdf(VectorType x) const;
+      // project a gaussian to a lower dimensional version
+      template <int P_DIM>
+      Gaussian<P_DIM>
+      project(Eigen::VectorXd &dims) const;
+      void
+      regression(VectorType x, Gaussian<DIM> &result) const;
 
       // getter
       VectorType &
@@ -66,13 +74,6 @@ namespace gmm
 
       //TODO: toFile method
     };
-
-  /* helpers for operating with gaussians */
-
-  // project a gaussian to a lower dimensional version
-  template<int P_DIM, int DIM>
-    Gaussian<P_DIM>
-    projectGaussian(const Gaussian<DIM> &g, Eigen::VectorXd &dims);
 
 }
 
