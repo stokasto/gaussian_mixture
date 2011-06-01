@@ -15,9 +15,9 @@ namespace gmm
   g_float
   random_uniform_0_1();
   g_float
-  random_uniform_0_k(double k);
+  random_uniform_0_k(g_float k);
   g_float
-  random_uniform_mk_k(double k);
+  random_uniform_mk_k(g_float k);
 
   // normal distribution
   g_float
@@ -56,8 +56,8 @@ namespace gmm
 
       // methods
       // draw a sample from the distribution
-      VectorType
-      draw() const;
+      void
+      draw(VectorType &res) const;
       // calculate the pdf function at position x
       g_float
       pdf(VectorType x) const;

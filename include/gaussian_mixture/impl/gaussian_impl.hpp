@@ -61,8 +61,8 @@ namespace gmm
   /* gaussian implementation */
   template<int DIM>
     Gaussian<DIM>::Gaussian() :
-      dim(DIM), mean_(MatrixType::Zero()), partition_(1), covariance_(MatrixType::Identity()),
-          cholesky_(covariance_.llt())
+      dim(DIM), mean_(MatrixType::Zero()), covariance_(MatrixType::Identity()),
+          cholesky_(covariance_.llt()), partition_(1)
     {
     }
 
@@ -72,17 +72,15 @@ namespace gmm
     }
 
   template<int DIM>
-    typename Gaussian<DIM>::VectorType
-    Gaussian<DIM>::draw() const
+    void 
+    Gaussian<DIM>::draw(typename Gaussian<DIM>::VectorType &res) const
     {
-      Gaussian<DIM>::VectorType t;
-      VectorType tmp = VectorType::Zero();
       // at first draw N random variables from a normal distribution
       for (int i = 0; i < dim; ++i)
-        tmp(i) = random_normal();
+        res(i) = random_normal();
       // multiply with covariance matrix and add mean
       // to get a proper sample from the current distribution
-      return covariance_.triangularView() * tmp + mean_;
+      res = cholesky_.matrixL() * res + mean_;
     }
 
   template<int DIM>
