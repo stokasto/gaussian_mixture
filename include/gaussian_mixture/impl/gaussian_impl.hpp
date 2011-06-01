@@ -44,9 +44,9 @@ namespace gmm
         u2 = random_uniform_0_1();
         // transform them to the interval [-1,1]
         v1 = 2.0f * u1 - 1.f;
-        v2 = 2.0f * u1 - 1.f;
+        v2 = 2.0f * u2 - 1.f;
         // calculate r = v1^2 + v2^2
-        r = pow(v1, 2) + pow(v2, 2);
+        r = v1 * v1 + v2 * v2;
       }
     return v1 * sqrt((-2.0f * log(r)) / r);
   }

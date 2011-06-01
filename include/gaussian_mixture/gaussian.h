@@ -2,6 +2,7 @@
 #define DISTRIBUTIONS_H_
 
 #include <math.h>
+#include <stdlib.h>
 #include <Eigen/Core>
 #include <Eigen/Cholesky>
 

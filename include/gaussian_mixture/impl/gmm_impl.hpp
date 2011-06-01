@@ -57,7 +57,7 @@ namespace gmm
       // set old assignments to -1 initially
       for (int i = 0; i < assignments2.size(); ++i)
         {
-        assignments2[i] = -1;
+          assignments2[i] = -1;
         }
       // first init randomly
       initRandom(data);
@@ -100,7 +100,8 @@ namespace gmm
 
   template<int DIM>
     GMM<DIM> &
-    GMM<DIM>::initUniformAlongAxis(const std::vector<typename Gaussian<DIM>::VectorType> &data, int axis)
+    GMM<DIM>::initUniformAlongAxis(const std::vector<typename Gaussian<DIM>::VectorType> &data,
+        int axis)
     {
       assert(axis >= 0 && axis < DIM);
       // first calculate mean along the selected axis
@@ -309,6 +310,21 @@ namespace gmm
       return best;
     }
 
+  template<int DIM>
+    typename Gaussian<DIM>::VectorType &
+    GMM<DIM>::getMean(int state)
+    {
+      assert(state >= 0 && state < num_states_);
+      return gaussians_[state].mean();
+    }
+
+  template<int DIM>
+    typename Gaussian<DIM>::MatrixType &
+    GMM<DIM>::getCovariance(int state)
+    {
+      assert(state >= 0 && state < num_states_);
+      return gaussians_[state].getCovariance();
+    }
 }
 
 #endif /* GMM_IMPL_HPP_ */
