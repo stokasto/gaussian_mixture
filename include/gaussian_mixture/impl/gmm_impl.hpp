@@ -14,7 +14,6 @@ namespace gmm
     }
 
   template<int DIM>
-    virtual
     GMM<DIM>::~GMM()
     {
     }
@@ -34,13 +33,13 @@ namespace gmm
 
   template<int DIM>
     GMM<DIM> &
-    GMM<DIM>::initRandom(std::vector<Gaussian<DIM>::VectorType> &data)
+    GMM<DIM>::initRandom(const std::vector<typename Gaussian<DIM>::VectorType> &data)
     {
       // pick random means from the data
       for (int i = 0; i < num_states_; ++i)
         {
           int next = rand() % data.size();
-          Gaussian < DIM > &g = gaussians_[i];
+          Gaussian<DIM> &g = gaussians_[i];
           // adapt mean --> covariance is left to be the identity
           g.mean() = data[next];
         }
@@ -50,15 +49,15 @@ namespace gmm
 
   template<int DIM>
     GMM<DIM> &
-    GMM<DIM>::initKmeans(std::vector<Gaussian<DIM>::VectorType> &data, int max_iter)
+    GMM<DIM>::initKmeans(const std::vector<typename Gaussian<DIM>::VectorType> &data, int max_iter)
     {
       std::vector<int> assignments(data.size());
       std::vector<int> assignments2(data.size());
       bool changed = false;
       // set old assignments to -1 initially
-      for (int i = 0; i < old_assignments.size(); ++i)
+      for (int i = 0; i < assignments2.size(); ++i)
         {
-          old_assignments[i] = -1;
+        assignments2[i] = -1;
         }
       // first init randomly
       initRandom(data);
@@ -101,7 +100,7 @@ namespace gmm
 
   template<int DIM>
     GMM<DIM> &
-    GMM<DIM>::initUniformAlongAxis(std::vector<Gaussian<DIM>::VectorType> &data, int axis)
+    GMM<DIM>::initUniformAlongAxis(const std::vector<typename Gaussian<DIM>::VectorType> &data, int axis)
     {
       assert(axis >= 0 && axis < DIM);
       // first calculate mean along the selected axis
@@ -142,7 +141,7 @@ namespace gmm
 
   template<int DIM>
     GMM<DIM> &
-    GMM<DIM>::setMean(int state, Gaussian<DIM>::VectorType &mean)
+    GMM<DIM>::setMean(int state, typename Gaussian<DIM>::VectorType &mean)
     {
       assert(state >= 0 && state < num_states_);
       gaussians_[state].setMean(mean);
@@ -152,7 +151,7 @@ namespace gmm
 
   template<int DIM>
     GMM<DIM> &
-    GMM<DIM>::setCovariance(int state, Gaussian<DIM>::MatrixType &cov)
+    GMM<DIM>::setCovariance(int state, typename Gaussian<DIM>::MatrixType &cov)
     {
       assert(state >= 0 && state < num_states_);
       gaussians_[state].setCovariance(cov);
@@ -180,7 +179,7 @@ namespace gmm
   template<int DIM>
     g_float
     GMM<DIM>::cluster(std::vector<int> &assignments, std::vector<int> &old_assignments,
-        const std::vector<Gaussian<DIM>::VectorType>& pats, bool &changed)
+        const std::vector<typename Gaussian<DIM>::VectorType>& pats, bool &changed)
     {
       int best_idx = 0;
       g_float summed_dist;
@@ -224,8 +223,8 @@ namespace gmm
 
   template<int DIM>
     void
-    GMM<DIM>::updateClusters(std::vector<int> & assignments, const std::vector<
-        Gaussian<DIM>::VectorType>& pats)
+    GMM<DIM>::updateClusters(std::vector<int> & assignments, const std::vector<typename Gaussian<
+        DIM>::VectorType>& pats)
     {
       int patterns_per_cluster[num_states_];
       int curr_assignment = 0;
@@ -256,12 +255,12 @@ namespace gmm
                   /= (patterns_per_cluster[i] > 0) ? patterns_per_cluster[i] : 1.;
             }
         }
-      ROS_DEBUG("DONE updating kmeans");
+      //ROS_DEBUG("DONE updating kmeans");
     }
 
   template<int DIM>
-    Gaussian<DIM>::VectorType
-    GMM<DIM>::draw()
+    typename Gaussian<DIM>::VectorType
+    GMM<DIM>::draw() const
     {
       int state = 0;
       g_float accum = 0.;
@@ -278,7 +277,7 @@ namespace gmm
 
   template<int DIM>
     g_float
-    GMM<DIM>::pdf(Gaussian<DIM>::VectorType x) const
+    GMM<DIM>::pdf(typename Gaussian<DIM>::VectorType x) const
     {
       g_float likeliehood = 0., tmp = 0.;
       for (int i = 0; i < num_states_; ++i)
@@ -293,7 +292,7 @@ namespace gmm
 
   template<int DIM>
     int
-    GMM<DIM>::mostLikelyGauss(Gaussian<DIM>::VectorType x) const
+    GMM<DIM>::mostLikelyGauss(typename Gaussian<DIM>::VectorType x) const
     {
       g_float best_likeliehood = 0., tmp = 0.;
       int best = 0;
@@ -307,7 +306,7 @@ namespace gmm
               best = i;
             }
         }
-      return i;
+      return best;
     }
 
 }

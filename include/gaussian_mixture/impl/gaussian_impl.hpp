@@ -60,21 +60,22 @@ namespace gmm
 
   /* gaussian implementation */
   template<int DIM>
-    Gaussian::Gaussian() :
+    Gaussian<DIM>::Gaussian() :
       dim(DIM), mean_(MatrixType::Zero()), partition_(1), covariance_(MatrixType::Identity()),
-          cholesky_(covariance.llt())
+          cholesky_(covariance_.llt())
     {
     }
 
   template<int DIM>
-    Gaussian::~Gaussian()
+    Gaussian<DIM>::~Gaussian()
     {
     }
 
   template<int DIM>
-    Gaussian<DIM>::VectorType
+    typename Gaussian<DIM>::VectorType
     Gaussian<DIM>::draw() const
     {
+      Gaussian<DIM>::VectorType t;
       VectorType tmp = VectorType::Zero();
       // at first draw N random variables from a normal distribution
       for (int i = 0; i < dim; ++i)
@@ -104,27 +105,27 @@ namespace gmm
     }
 
   template<int DIM>
-    Gaussian<DIM>::VectorType &
+    typename Gaussian<DIM>::VectorType &
     Gaussian<DIM>::mean()
     {
       return mean_;
     }
 
   template<int DIM>
-    const Gaussian<DIM>::MatrixType &
+    const typename Gaussian<DIM>::MatrixType &
     Gaussian<DIM>::getCovariance()
     {
       return covariance_;
     }
 
   template<int DIM>
-    Gaussian<DIM>
-    Gaussian<DIM>::setCovariance(Gaussian<DIM>::MatrixType &cov)
+    Gaussian<DIM> &
+    Gaussian<DIM>::setCovariance(typename Gaussian<DIM>::MatrixType &cov)
     {
       g_float tmp = 1.;
       covariance_ = cov;
       // precompute cholesky
-      cholesky.compute(covariance_);
+      cholesky_.compute(covariance_);
       // TODO: assert that cov is actually symmetric positive definite
       // recompute partition
       for (int i = 0; i < dim; ++i)
@@ -133,13 +134,13 @@ namespace gmm
         }
       // square --> variance
       tmp = tmp * tmp;
-      partition = sqrt(pow(M_PI, dim) * tmp);
+      partition_ = sqrt(pow(M_PI, dim) * tmp);
       return *this;
     }
 
   template<int DIM>
-    Gaussian<DIM>
-    Gaussian<DIM>::setMean(Gaussian<DIM>::VectorType &mean)
+    Gaussian<DIM> &
+    Gaussian<DIM>::setMean(typename Gaussian<DIM>::VectorType &mean)
     {
       mean_ = mean;
       return *this;
@@ -148,21 +149,13 @@ namespace gmm
   template<int DIM>
     template<int P_DIM>
       Gaussian<P_DIM>
-      project(Eigen::VectorXd &dims) const
+      Gaussian<DIM>::project(Eigen::VectorXd &dims) const
       {
-        if (P_DIM > DIM)
-          {
-            ROS_ERROR("ERROR: projected dim: %d is bigger than original dim: %d", P_DIM, DIM);
-            assert(P_DIM < DIM);
-          }
-        if (dims.size() != P_DIM)
-          {
-            ROS_ERROR("ERROR: projected dim does not match provided vector");
-            assert(dims.size() == P_DIM);
-          }
+        assert (P_DIM < DIM && "ERROR: projected dim is bigger than original dim");
+        assert (dims.size() == P_DIM && "ERROR: projected dim does not match provided vector");
         // allocate resulting gaussian
-        Gaussian < P_DIM > result;
-        Gaussian<P_DIM>::MatrixType new_cov;
+        Gaussian<P_DIM> result;
+        typename Gaussian<P_DIM>::MatrixType new_cov;
         // copy covariance matrix
         for (int i = 0; i < dims.size(); ++i)
           for (int j = 0; j < dims.size(); ++j)
@@ -180,14 +173,14 @@ namespace gmm
   template<int DIM>
     template<int P_DIM>
       Gaussian<P_DIM>
-      project() const
+      Gaussian<DIM>::project() const
       {
         Eigen::VectorXd dims(P_DIM);
-        for(int i = 0; i < P_DIM; ++i)
+        for (int i = 0; i < P_DIM; ++i)
           dims(i) = i;
         // TODO: this could be done more efficiently by copying
         //       the covariance matrix block wise
-        return project<P_DIM>(dims);
+        return project<P_DIM> (dims);
       }
 }
 

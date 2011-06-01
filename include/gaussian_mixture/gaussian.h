@@ -69,8 +69,8 @@ namespace gmm
         Gaussian<P_DIM>
         project() const;
 
-      void
-      regression(VectorType x, Gaussian<DIM> &result) const;
+      //void
+      //regression(VectorType x, Gaussian<DIM> &result) const;
 
       // getter
       VectorType &

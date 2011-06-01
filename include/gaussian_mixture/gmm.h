@@ -20,10 +20,10 @@ namespace gmm
       /* methods for kmeans clustering */
       g_float
       cluster(std::vector<int> &assignments, std::vector<int> &old_assignments, const std::vector<
-          Gaussian<DIM>::VectorType>& pats, bool &changed);
+          typename Gaussian<DIM>::VectorType>& pats, bool &changed);
       void
-      updateClusters(std::vector<int> & assignments,
-          const std::vector<Gaussian<DIM>::VectorType>& pats);
+      updateClusters(std::vector<int> & assignments, const std::vector<
+          typename Gaussian<DIM>::VectorType>& pats);
 
     public:
       // constructor and destructor
@@ -35,15 +35,16 @@ namespace gmm
       GMM<DIM> &
       setNumStates(int num);
       GMM<DIM> &
-      initRandom(const std::vector<Gaussian<DIM>::VectorType> &data);
+      initRandom(const std::vector<typename Gaussian<DIM>::VectorType> &data);
       GMM<DIM> &
-      initKmeans(const std::vector<Gaussian<DIM>::VectorType> &data, int max_iter = 120);
+      initKmeans(const std::vector<typename Gaussian<DIM>::VectorType> &data, int max_iter = 120);
       GMM<DIM> &
-      initUniformAlongAxis(const std::vector<Gaussian<DIM>::VectorType> &data, int axis = 0);
+      initUniformAlongAxis(const std::vector<typename Gaussian<DIM>::VectorType> &data, int axis =
+          0);
       GMM<DIM> &
-      setMean(int state, Gaussian<DIM>::VectorType &mean);
+      setMean(int state, typename Gaussian<DIM>::VectorType &mean);
       GMM<DIM> &
-      setCovariance(int state, Gaussian<DIM>::MatrixType &cov);
+      setCovariance(int state, typename Gaussian<DIM>::MatrixType &cov);
       GMM<DIM> &
       setPrior(int state, g_float prior);
       GMM<DIM> &
@@ -51,19 +52,19 @@ namespace gmm
 
       // general methods
       // draw a sample
-      Gaussian<DIM>::VectorType
+      typename Gaussian<DIM>::VectorType
       draw() const;
       // calculate pdf for given point x
       g_float
-      pdf(Gaussian<DIM>::VectorType x) const;
+      pdf(typename Gaussian<DIM>::VectorType x) const;
       // compute most likely gauss from mixture model for point x
       int
-      mostLikelyGauss(Gaussian<DIM>::VectorType x) const;
+      mostLikelyGauss(typename Gaussian<DIM>::VectorType x) const;
 
       // getter
-      Gaussian<DIM>::VectorType &
+      typename Gaussian<DIM>::VectorType &
       getMean(int state);
-      Gaussian<DIM>::MatrixType &
+      typename Gaussian<DIM>::MatrixType &
       getCovariance(int state);
 
       // TODO: toFile methods
