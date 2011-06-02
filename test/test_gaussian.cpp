@@ -34,7 +34,7 @@ template<int DIM>
     typename Gaussian<DIM>::VectorType mean;
     typename Gaussian<DIM>::MatrixType covariance;
     typename Gaussian<DIM>::MatrixType tmp;
-    for (size_t k = 0; k < 10; ++k)
+    for (size_t k = 0; k < 5; ++k)
       {
 
         tmp = Gaussian<DIM>::MatrixType::Random();
