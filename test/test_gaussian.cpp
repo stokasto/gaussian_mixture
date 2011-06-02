@@ -14,11 +14,72 @@
 
 
 #include <gaussian_mixture/gaussian.h>
+#include <gaussian_mixture/gaussian_converter.h>
 
+#include <vector>
 #include <Eigen/Dense>
 #include <gtest/gtest.h>
 
 using namespace gmm;
+
+template<int DIM>
+  void
+  gaussianTest()
+  {
+    int n = 10e5;
+    std::vector<typename Gaussian<DIM>::VectorType> x(n);
+    srand(time(0));
+    // temporary N-dimensional "Vector" to store samples from the gaussian
+    typename Gaussian<DIM>::VectorType sample;
+    typename Gaussian<DIM>::VectorType mean;
+    typename Gaussian<DIM>::MatrixType covariance;
+    typename Gaussian<DIM>::MatrixType tmp;
+    for (size_t k = 0; k < 10; ++k)
+      {
+
+        tmp = Gaussian<DIM>::MatrixType::Random();
+        // TODO: the generated covariance matrix will be symmetric
+        //       but its positive definiteness is not guaranteed, it is just very likely :)
+        //       should we check this here using eigenvalues ?
+        covariance = tmp.transpose() * tmp;
+        for (int i = 0; i < sample.size(); ++i)
+          mean(i) = random_uniform_0_k(40);
+        // declare 1 dimensional gaussian
+        Gaussian<DIM> gauss = Gaussian<DIM> ().setMean(mean).setCovariance(covariance);
+        typename Gaussian<DIM>::VectorType sampleMean(Gaussian<DIM>::VectorType::Zero());
+        for (int i = 0; i < n; ++i)
+          {
+            // draw from gaussian
+            gauss.draw(sample);
+            // store in vector
+            x[i] = sample;
+            // and add to mean
+            sampleMean += sample;
+          }
+        // calculate correct mean
+        sampleMean /= n;
+        // calculate sample variance
+        typename Gaussian<DIM>::MatrixType var(Gaussian<DIM>::MatrixType::Zero());
+        for (int i = 0; i < n; ++i)
+          {
+            var += (x[i] - sampleMean) * (x[i] - sampleMean).transpose();
+          }
+        var = (1. / (n - 1)) * var;
+
+        // assertions
+        for (int i = 0; i < mean.size(); ++i)
+          {
+            EXPECT_NEAR(mean(i), sampleMean(i), 10e-2);
+          }
+        for (int y = 0; y < covariance.rows(); ++y)
+          {
+            for (int x = 0; x < covariance.cols(); ++x)
+              {
+                EXPECT_NEAR(covariance(y,x), var(y,x), 10e-2);
+              }
+          }
+      }
+  }
 
 TEST(Gaussian, random_normal)
 {
@@ -38,8 +99,8 @@ TEST(Gaussian, random_normal)
         var += (x(i) - mean) * (x(i) - mean);
       var = (1. / (n - 1)) * var;
 
-      ASSERT_NEAR(0.0, mean, 10e-3);
-      ASSERT_NEAR(1.0, var, 10e-3);
+      EXPECT_NEAR(0.0, mean, 10e-3);
+      EXPECT_NEAR(1.0, var, 10e-3);
     }
 }
 
@@ -72,14 +133,59 @@ TEST(Gaussian, gaussian1D)
       // calculate sample variance
       double var = 0.;
       for (int i = 0; i < n; ++i)
-        var += (x(i) - sampleMean) * (x(i) - sampleMean);
+        {
+          var += (x(i) - sampleMean) * (x(i) - sampleMean);
+        }
       var = (1. / (n - 1)) * var;
 
-      ASSERT_NEAR(mean(0), sampleMean, 10e-2);
-      ASSERT_NEAR(covariance(0), var, 10e-2);
+      EXPECT_NEAR(mean(0), sampleMean, 10e-2);
+      EXPECT_NEAR(covariance(0), var, 10e-2);
     }
 }
 
+TEST(Gaussian, gaussian2D)
+{
+  gaussianTest<2> ();
+}
+
+TEST(Gaussian, gaussianND)
+{
+  // TODO: these tests can actually take quite a while, is there a way in gtest
+  //       to mark them as slow ?
+  gaussianTest<3> ();
+  gaussianTest<4> ();
+  gaussianTest<5> ();
+  gaussianTest<6> ();
+}
+
+TEST(Gaussian, gaussianProject)
+{
+  Gaussian<3>::VectorType mean;
+  Gaussian<3>::MatrixType tmp;
+  Gaussian<3>::MatrixType covariance;
+  tmp = Gaussian<3>::MatrixType::Random();
+  covariance = tmp.transpose() * tmp;
+  mean = Gaussian<3>::VectorType::Random();
+
+  Gaussian<3> gauss = Gaussian<3> ().setMean(mean).setCovariance(covariance);
+  // project to first two dimensions
+  Gaussian<2> projection;
+  gauss.getConverter<2>().project (projection);
+  Gaussian<2>::MatrixType checkCovar = projection.getCovariance();
+  Gaussian<2>::VectorType checkMean = projection.mean();
+  for (int i = 0; i < checkMean.size(); ++i)
+    {
+      EXPECT_NEAR(checkMean(i), mean(i), 1e-3);
+    }
+  for (int i = 0; i < checkCovar.rows(); ++i )
+    {
+      for (int j = 0; j < checkCovar.cols(); ++j )
+        {
+          EXPECT_NEAR(checkCovar(i,j), covariance(i,j), 1e-3);
+        }
+    }
+
+}
 
 int
 main(int argc, char **argv)

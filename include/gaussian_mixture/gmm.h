@@ -1,6 +1,7 @@
 #ifndef GMM_H_
 #define GMM_H_
 
+#include <gaussian_mixture/types.h>
 #include <gaussian_mixture/gaussian.h>
 
 #include <Eigen/Core>
@@ -26,6 +27,8 @@ namespace gmm
           typename Gaussian<DIM>::VectorType>& pats);
 
     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
       // constructor and destructor
       GMM();
       virtual

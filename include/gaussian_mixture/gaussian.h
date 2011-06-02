@@ -1,29 +1,14 @@
 #ifndef DISTRIBUTIONS_H_
 #define DISTRIBUTIONS_H_
 
-#include <math.h>
-#include <stdlib.h>
+#include <gaussian_mixture/types.h>
+#include <gaussian_mixture/random.h>
+
 #include <Eigen/Core>
 #include <Eigen/Cholesky>
 
 namespace gmm
 {
-  typedef float g_float;
-
-  /* basic helper functions to draw 1-D random numbers */
-  // uniform distribution
-  g_float
-  random_uniform_0_1();
-  g_float
-  random_uniform_0_k(g_float k);
-  g_float
-  random_uniform_mk_k(g_float k);
-
-  // normal distribution
-  g_float
-  random_normal();
-  g_float
-  random_normal(g_float mu, g_float sigma);
 
   /* definition of a n dimensional gaussian */
   template<int DIM>
@@ -40,6 +25,14 @@ namespace gmm
       Eigen::LLT<MatrixType> cholesky_; // preallocate cholesky decomposition
       g_float partition_;
 
+      /* these are just for temporary storage
+       * we do keep them as member variables such that the pdf() function
+       * is real time safe!
+       */
+      VectorType beta_;
+      VectorType alpha_;
+      VectorType tmp_;
+
     public:
       EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -50,9 +43,9 @@ namespace gmm
 
       // Methods for following the named parameters paradigm
       Gaussian<DIM> &
-      setCovariance(MatrixType &cov);
+      setCovariance(const MatrixType &cov);
       Gaussian<DIM> &
-      setMean(VectorType &mean);
+      setMean(const VectorType &mean);
 
       // methods
       // draw a sample from the distribution
@@ -60,24 +53,20 @@ namespace gmm
       draw(VectorType &res) const;
       // calculate the pdf function at position x
       g_float
-      pdf(VectorType x) const;
-      // project a gaussian to a lower dimensional version
-      template<int P_DIM>
-        Gaussian<P_DIM>
-        project(Eigen::VectorXd &dims) const;
-      // project to the first p dimensions
-      template<int P_DIM>
-        Gaussian<P_DIM>
-        project() const;
-
-      //void
-      //regression(VectorType x, Gaussian<DIM> &result) const;
+      pdf(const VectorType x);
 
       // getter
       VectorType &
       mean();
+
       const MatrixType &
-      getCovariance();
+      getCovariance() const;
+      const VectorType &
+      getMean() const;
+
+      template<int P_DIM>
+        GaussianConverter<DIM, P_DIM>
+        getConverter() const;
 
       //TODO: toFile method
     };
