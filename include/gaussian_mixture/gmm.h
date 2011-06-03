@@ -55,8 +55,8 @@ namespace gmm
 
       // general methods
       // draw a sample
-      typename Gaussian<DIM>::VectorType
-      draw() const;
+      void
+      draw(typename Gaussian<DIM>::VectorType &result) const;
       // calculate pdf for given point x
       g_float
       pdf(typename Gaussian<DIM>::VectorType x) const;
@@ -65,11 +65,18 @@ namespace gmm
       mostLikelyGauss(typename Gaussian<DIM>::VectorType x) const;
 
       // getter
+      Gaussian<DIM> &
+      getGaussian(int state);
       typename Gaussian<DIM>::VectorType &
       getMean(int state);
       typename Gaussian<DIM>::MatrixType &
       getCovariance(int state);
-
+      int
+      getNumStates() const;
+      g_float
+      getPrior(int state) const;
+      const Eigen::VectorXd
+      getPriors() const;
       // TODO: toFile methods
 
     };

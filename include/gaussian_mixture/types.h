@@ -17,6 +17,9 @@ namespace gmm
   // gaussian mixture regression definition
   template<int DIM, int P_DIM>
     class GMR;
+  // EM algorithm on gaussian mixture models
+  template<int DIM>
+      class EM;
 }
 
 #endif /* GMM_TYPES_H_ */

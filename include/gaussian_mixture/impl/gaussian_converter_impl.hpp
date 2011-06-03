@@ -8,7 +8,7 @@ namespace gmm
 
   template<int DIM, int P_DIM>
     GaussianConverter<DIM, P_DIM>::GaussianConverter() :
-      initialized_(false)
+      initialized_(false), input_(0)
     {
       assert(P_DIM < DIM && "ERROR: the dimension of the target gaussian must be < source");
     }
@@ -102,6 +102,15 @@ namespace gmm
       resultCovar_ = sigmaO_ - sigmaOI_ * llt_.matrixL().transpose().solve(beta_);
 
       result.setMean(resultMean_).setCovariance(resultCovar_);
+    }
+
+  template<int DIM, int P_DIM>
+    void
+    GaussianConverter<DIM, P_DIM>::getMarginalDistribution(Gaussian<DIM - P_DIM> &result)
+    {
+      typename Gaussian<DIM>::VectorType &mean = input_->getMean();
+      result.setMean(mean.head(DIM-P_DIM));
+      result.setCovariance(sigmaI_);
     }
 }
 

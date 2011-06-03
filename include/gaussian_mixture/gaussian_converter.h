@@ -58,6 +58,8 @@ namespace gmm
       void
       getConditionalDistribution(const typename Gaussian<DIM - P_DIM>::VectorType &input,
           Gaussian<P_DIM> &result);
+      void
+      getMarginalDistribution(Gaussian<DIM-P_DIM> &result);
 
       // getter
       Gaussian<DIM> &

@@ -107,7 +107,7 @@ namespace gmm
       // first calculate mean along the selected axis
       g_float min = 1e7;
       g_float max = -1e7;
-      for (int i = 0; i < int(data.size()); ++i)
+      for (int i = 0; i < (int) data.size(); ++i)
         {
           g_float tmp = data[i](axis);
           if (tmp < min)
@@ -260,8 +260,8 @@ namespace gmm
     }
 
   template<int DIM>
-    typename Gaussian<DIM>::VectorType
-    GMM<DIM>::draw() const
+    void
+    GMM<DIM>::draw(typename Gaussian<DIM>::VectorType &result) const
     {
       int state = 0;
       g_float accum = 0.;
@@ -273,7 +273,7 @@ namespace gmm
           ++state;
         }
       // finally draw from the distribution belonging to the selected state
-      return gaussians_[state].draw();
+      return gaussians_[state].draw(result);
     }
 
   template<int DIM>
@@ -311,6 +311,14 @@ namespace gmm
     }
 
   template<int DIM>
+    Gaussian<DIM> &
+    GMM<DIM>::getGaussian(int state)
+    {
+      assert(state >= 0 && state < num_states_);
+      return gaussians_[state];
+    }
+
+  template<int DIM>
     typename Gaussian<DIM>::VectorType &
     GMM<DIM>::getMean(int state)
     {
@@ -325,6 +333,30 @@ namespace gmm
       assert(state >= 0 && state < num_states_);
       return gaussians_[state].getCovariance();
     }
+
+  template<int DIM>
+    int
+    GMM<DIM>::getNumStates() const
+    {
+      return num_states_;
+    }
+
+  template<int DIM>
+    g_float
+    GMM<DIM>::getPrior(int state) const
+    {
+      assert(initialized_ && state >= 0 && state < num_states_);
+      return priors_(state);
+    }
+
+  template<int DIM>
+    const Eigen::VectorXd
+    GMM<DIM>::getPriors() const
+    {
+      assert (initialized_);
+      return priors_;
+    }
+
 }
 
 #endif /* GMM_IMPL_HPP_ */
