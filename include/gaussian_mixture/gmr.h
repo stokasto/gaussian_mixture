@@ -26,6 +26,8 @@ namespace gmm
       bool initialized_;
 
     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
       GMR();
       virtual
       ~GMR();

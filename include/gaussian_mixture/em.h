@@ -28,6 +28,7 @@ namespace gmm
       bool initialized_;
 
     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
       EM();
       virtual
@@ -42,9 +43,12 @@ namespace gmm
       Mstep(const std::vector<typename GMM<DIM>::VectorType> &data, bool &do_continue);
 
       g_float
-      runEM(const std::vector<typename GMM<DIM>::VectorType> &data);
+      runEM(const std::vector<typename GMM<DIM>::VectorType> &data, g_float epsilon, int max_iter);
 
     };
 }
+
+// see em_impl.hpp for implementation
+#include <gaussian_mixture/impl/em_impl.hpp>
 
 #endif /* EM_H_ */
