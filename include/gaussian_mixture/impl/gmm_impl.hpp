@@ -311,6 +311,14 @@ namespace gmm
     }
 
   template<int DIM>
+    template<int P_DIM>
+      GMR<DIM, P_DIM>
+      GMM<DIM>::getRegressionModel() const
+      {
+        return GMR<DIM, P_DIM> ().setInputGMM(*this);
+      }
+
+  template<int DIM>
     Gaussian<DIM> &
     GMM<DIM>::getGaussian(int state)
     {

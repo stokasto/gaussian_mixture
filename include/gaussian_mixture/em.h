@@ -18,7 +18,7 @@ namespace gmm
       // storage for em computations
       // TODO: this might get pretty big, how large is the overhead
       //       inflicted by usage of vector and Eigen::VectorXd ?
-      //       If it is too large we might resort to just allocate one large float array here
+      //       If it is too large we might resort to just allocating one large float array here
       std::vector<Eigen::VectorXd> storage_;
       // another temporary vector that has size of num_states_
       Eigen::VectorXd tmp_pdf_;

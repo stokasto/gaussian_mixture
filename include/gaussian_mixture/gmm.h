@@ -65,16 +65,25 @@ namespace gmm
       mostLikelyGauss(typename Gaussian<DIM>::VectorType x) const;
 
       // getter
+      template<int P_DIM>
+        GMR<DIM, P_DIM>
+        getRegressionModel() const;
+
       Gaussian<DIM> &
       getGaussian(int state);
+
       typename Gaussian<DIM>::VectorType &
       getMean(int state);
+
       typename Gaussian<DIM>::MatrixType &
       getCovariance(int state);
+
       int
       getNumStates() const;
+
       g_float
       getPrior(int state) const;
+
       const Eigen::VectorXd
       getPriors() const;
       // TODO: toFile methods
