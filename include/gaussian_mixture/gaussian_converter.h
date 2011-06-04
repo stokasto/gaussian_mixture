@@ -36,6 +36,7 @@ namespace gmm
       Eigen::Matrix<g_float, DIM - P_DIM, P_DIM> tmp_llt_sigmaIO_;
       Eigen::LLT<MarginalMatType> llt_;
       MarginalMatType beta_;
+      MarginalMatType tmp_in_;
 
     public:
       EIGEN_MAKE_ALIGNED_OPERATOR_NEW

@@ -92,14 +92,15 @@ namespace gmm
       if (!initialized_ || !input_)
         return;
 
+      tmp_in_ = input - input_->getMean().head(DIM - P_DIM);
       // calculate mean
-      beta_ = llt_.matrixL().solve(input);
-      resultMean_ = input_->getMean() + sigmaO_ - sigmaOI_ * (llt_.matrixL().transpose().solve(
-          beta_) * resultMean_);
+      beta_ = llt_.matrixL().solve(tmp_in_);
+      resultMean_ = input_->getMean().tail(P_DIM) + sigmaOI_ * llt_.matrixL().transpose().solve(
+          beta_);
 
       // calculate covariance
       tmp_llt_sigmaIO_ = llt_.matrixL().solve(sigmaIO_);
-      resultCovar_ = sigmaO_ - sigmaOI_ * llt_.matrixL().transpose().solve(beta_);
+      resultCovar_ = sigmaO_ - sigmaOI_ * llt_.matrixL().transpose().solve(tmp_llt_sigmaIO_);
 
       result.setMean(resultMean_).setCovariance(resultCovar_);
     }
