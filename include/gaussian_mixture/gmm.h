@@ -68,9 +68,13 @@ namespace gmm
       template<int P_DIM>
         GMR<DIM, P_DIM>
         getRegressionModel() const;
+      EM<DIM>
+      getEM();
 
       const Gaussian<DIM> &
       getGaussian(int state) const;
+      Gaussian<DIM> &
+      gaussian(int state);
 
       typename Gaussian<DIM>::VectorType &
       getMean(int state);

@@ -1,6 +1,7 @@
 #include <gaussian_mixture/gaussian.h>
 #include <gaussian_mixture/gmm.h>
 #include <gaussian_mixture/gmr.h>
+#include <gaussian_mixture/em.h>
 
 using namespace gmm;
 
@@ -23,7 +24,16 @@ int main(void)
     }
   // init gaussian mixture model
   gmm.initKmeans(train_data);
+
+  // get EM instance
+  EM<2> em = gmm.getEM();
+  // run em
+  std::cout << "Running em algorithm" << std::endl;
+  em.runEM(train_data, 0.1, 300);
+  std::cout << "DONE running em algorithm" << std::endl;
+
   // get regression model
+  std::cout << "Getting regression model" << std::endl;
   GMR<2,1> gmr = gmm.getRegressionModel<1>();
   // and draw samples from it
 

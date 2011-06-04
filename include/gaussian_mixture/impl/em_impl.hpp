@@ -25,6 +25,7 @@ namespace gmm
       initialized_ = true;
       num_states_ = model.getNumStates();
       tmp_pdf_.resize(num_states_);
+      return *this;
     }
 
   template<int DIM>
@@ -35,15 +36,13 @@ namespace gmm
       int state, iter;
       for (iter = 0; iter < (int) data.size(); ++iter)
         {
-          // get the associated storage vector
-          Eigen::VectorXd &storage_d = storage_.col(iter);
           // reset likeliehood accumulator
           // and calculate overall likeliehood of this data point
           likeliehood = 0.;
           for (state = 0; state < num_states_; ++state)
             {
               // query pdf of respective gaussian
-              tmp_pdf_[state] = model_->getGaussian(state).pdf(data[iter]);
+              tmp_pdf_[state] = model_->gaussian(state).pdf(data[iter]);
               // and accumulate likeliehood
               likeliehood += model_->getPrior(state) * tmp_pdf_[state];
             }
@@ -51,7 +50,7 @@ namespace gmm
 
           // now that we now the overall likeliehood we can calculate
           // the weighted likeliehood that a given state produced the data point
-          storage_d = model_->getPriors() * tmp_pdf_ / likeliehood;
+          storage_.col(iter) = model_->getPriors() * tmp_pdf_ / likeliehood;
         }
       return log_likeliehood;
     }
@@ -63,39 +62,37 @@ namespace gmm
       // TODO: implement this
       int rand_pos = 0, state, iter;
       typename Gaussian<DIM>::VectorType tmp;
-      typename Gaussian<DIM>::VectorType &mean;
-      typename Gaussian<DIM>::MatrixType &covariance;
+      typename Gaussian<DIM>::VectorType mean;
+      typename Gaussian<DIM>::MatrixType covariance;
       for (state = 0; state < num_states_; ++state)
         {
           g_float likeliehood = 0;
           // reset prior
           model_->setPrior(state, 0.);
           // reset mean
-          mean.setzero();
+          mean.setZero();
           // reset covariance
           covariance.setZero();
           // calculate new covariance matrix and mean
           // first calculate the new mean maximizing the expectation
           for (iter = 0; iter < (int) data.size(); ++iter)
             {
-              Eigen::VectorXd &storage_d = storage_.col(iter);
               // --> mean as weighted sum
-              mean += storage_d(state) * data[iter];
-              likeliehood += storage_d(state);
+              mean += storage_(state, iter) * data[iter];
+              likeliehood += storage_(state, iter);
             }
           // normalize mean
           mean /= likeliehood;
           // next calculate covariance maximizing the expectation
           for (iter = 0; iter < (int) data.size(); ++iter)
             {
-              Eigen::VectorXd &storage_d = storage_.col(iter);
               tmp = data[iter] - mean;
-              covariance += storage_d(state) * (tmp * tmp.transpose());
+              covariance += storage_(state, iter) * (tmp * tmp.transpose());
             }
           // normalize covariance
           covariance /= likeliehood;
           // set new mean and covariance
-          model_->getGaussian(state).setMean(mean).setCovariance(covariance);
+          model_->gaussian(state).setMean(mean).setCovariance(covariance);
           // set the prior to be the overall likeliehood
           model_->setPrior(state, likeliehood / data.size());
 
@@ -105,7 +102,7 @@ namespace gmm
           if (likeliehood <= 0.)
             {
               rand_pos = rand() % data.size();
-              model_->getGaussian(state).setMean(data[rand_pos]);
+              model_->gaussian(state).setMean(data[rand_pos]);
               do_continue = true;
             }
         }
@@ -117,7 +114,7 @@ namespace gmm
         int max_iter)
     {
       if (!initialized_ || !model_ || num_states_ < 1 || max_iter < 1)
-        return;
+        return 0.;
 
       int data_size = data.size();
       int iter = 0;

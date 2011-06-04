@@ -324,8 +324,23 @@ namespace gmm
       }
 
   template<int DIM>
+    EM<DIM>
+    GMM<DIM>::getEM()
+    {
+      return EM<DIM> ().setInputGMM(*this);
+    }
+
+  template<int DIM>
     const Gaussian<DIM> &
     GMM<DIM>::getGaussian(int state) const
+    {
+      assert(state >= 0 && state < num_states_);
+      return gaussians_[state];
+    }
+
+  template<int DIM>
+    Gaussian<DIM> &
+    GMM<DIM>::gaussian(int state)
     {
       assert(state >= 0 && state < num_states_);
       return gaussians_[state];
