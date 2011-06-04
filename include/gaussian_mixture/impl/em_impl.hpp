@@ -29,14 +29,14 @@ namespace gmm
 
   template<int DIM>
     g_float
-    EM<DIM>::Estep(const std::vector<typename GMM<DIM>::VectorType> &data)
+    EM<DIM>::Estep(const std::vector<typename Gaussian<DIM>::VectorType> &data)
     {
       g_float log_likeliehood = 0., likeliehood = 0.;
-      int state = 0, iter = 0;
-      for (; iter < (int) data.size(); ++iter)
+      int state, iter;
+      for (iter = 0; iter < (int) data.size(); ++iter)
         {
           // get the associated storage vector
-          Eigen::VectorXd &storage_d = storage_[iter];
+          Eigen::VectorXd &storage_d = storage_.col(iter);
           // reset likeliehood accumulator
           // and calculate overall likeliehood of this data point
           likeliehood = 0.;
@@ -58,14 +58,62 @@ namespace gmm
 
   template<int DIM>
     void
-    EM<DIM>::Mstep(const std::vector<typename GMM<DIM>::VectorType> &data, bool &do_continue)
+    EM<DIM>::Mstep(const std::vector<typename Gaussian<DIM>::VectorType> &data, bool &do_continue)
     {
       // TODO: implement this
+      int rand_pos = 0, state, iter;
+      typename Gaussian<DIM>::VectorType tmp;
+      typename Gaussian<DIM>::VectorType &mean;
+      typename Gaussian<DIM>::MatrixType &covariance;
+      for (state = 0; state < num_states_; ++state)
+        {
+          g_float likeliehood = 0;
+          // reset prior
+          model_->setPrior(state, 0.);
+          // reset mean
+          mean.setzero();
+          // reset covariance
+          covariance.setZero();
+          // calculate new covariance matrix and mean
+          // first calculate the new mean maximizing the expectation
+          for (iter = 0; iter < (int) data.size(); ++iter)
+            {
+              Eigen::VectorXd &storage_d = storage_.col(iter);
+              // --> mean as weighted sum
+              mean += storage_d(state) * data[iter];
+              likeliehood += storage_d(state);
+            }
+          // normalize mean
+          mean /= likeliehood;
+          // next calculate covariance maximizing the expectation
+          for (iter = 0; iter < (int) data.size(); ++iter)
+            {
+              Eigen::VectorXd &storage_d = storage_.col(iter);
+              tmp = data[iter] - mean;
+              covariance += storage_d(state) * (tmp * tmp.transpose());
+            }
+          // normalize covariance
+          covariance /= likeliehood;
+          // set new mean and covariance
+          model_->getGaussian(state).setMean(mean).setCovariance(covariance);
+          // set the prior to be the overall likeliehood
+          model_->setPrior(state, likeliehood / data.size());
+
+          // check if likeliehood is 0, which means this gaussian is not generating
+          // any of the data points
+          // --> if so reset the mean to a random data point and require one more em step
+          if (likeliehood <= 0.)
+            {
+              rand_pos = rand() % data.size();
+              model_->getGaussian(state).setMean(data[rand_pos]);
+              do_continue = true;
+            }
+        }
     }
 
   template<int DIM>
     g_float
-    EM<DIM>::runEM(const std::vector<typename GMM<DIM>::VectorType> &data, g_float epsilon,
+    EM<DIM>::runEM(const std::vector<typename Gaussian<DIM>::VectorType> &data, g_float epsilon,
         int max_iter)
     {
       if (!initialized_ || !model_ || num_states_ < 1 || max_iter < 1)
@@ -76,11 +124,7 @@ namespace gmm
       g_float log_likeliehood = 0., old_log_likeliehood = 0., delta_log_likeliehood = 0.;
       bool do_continue = false;
       // allocate space in storage_ for em computation
-      storage_.resize(data_size);
-      for (int i = 0; i < data_size; ++i)
-        {
-          storage_[i].resize(num_states_);
-        }
+      storage_.resize(num_states_, data_size);
 
       while (iter < max_iter)
         {

@@ -17,9 +17,9 @@ namespace gmm
 
       // storage for em computations
       // TODO: this might get pretty big, how large is the overhead
-      //       inflicted by usage of vector and Eigen::VectorXd ?
+      //       inflicted by usage of Eigen::MatrixXd ?
       //       If it is too large we might resort to just allocating one large float array here
-      std::vector<Eigen::VectorXd> storage_;
+      Eigen::MatrixXd storage_;
       // another temporary vector that has size of num_states_
       Eigen::VectorXd tmp_pdf_;
 
@@ -38,12 +38,12 @@ namespace gmm
       setInputGMM(GMM<DIM> &model);
 
       g_float
-      Estep(const std::vector<typename GMM<DIM>::VectorType> &data);
+      Estep(const std::vector<typename Gaussian<DIM>::VectorType> &data);
       void
-      Mstep(const std::vector<typename GMM<DIM>::VectorType> &data, bool &do_continue);
+      Mstep(const std::vector<typename Gaussian<DIM>::VectorType> &data, bool &do_continue);
 
       g_float
-      runEM(const std::vector<typename GMM<DIM>::VectorType> &data, g_float epsilon, int max_iter);
+      runEM(const std::vector<typename Gaussian<DIM>::VectorType> &data, g_float epsilon, int max_iter);
 
     };
 }

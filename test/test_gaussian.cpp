@@ -64,7 +64,7 @@ template<int DIM>
           {
             var += (x[i] - sampleMean) * (x[i] - sampleMean).transpose();
           }
-        var = (1. / (n - 1)) * var;
+        var /= n;
 
         // assertions
         for (int i = 0; i < mean.size(); ++i)
