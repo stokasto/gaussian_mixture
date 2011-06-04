@@ -170,7 +170,7 @@ TEST(Gaussian, gaussianProject)
   Gaussian<3> gauss = Gaussian<3> ().setMean(mean).setCovariance(covariance);
   // project to first two dimensions
   Gaussian<2> projection;
-  gauss.getConverter<2>().project (projection);
+  gauss.getConverter<2> ().project(projection);
   Gaussian<2>::MatrixType checkCovar = projection.getCovariance();
   Gaussian<2>::VectorType checkMean = projection.mean();
   for (int i = 0; i < checkMean.size(); ++i)
@@ -185,6 +185,16 @@ TEST(Gaussian, gaussianProject)
         }
     }
 
+}
+
+TEST(Gaussian, testPDF)
+{
+  Gaussian<1> gauss1;
+  Gaussian<1>::VectorType tmp(Gaussian<1>::VectorType::Zero());
+  Gaussian<2> gauss2;
+  Gaussian<2>::VectorType tmp2(Gaussian<2>::VectorType::Zero());
+  EXPECT_NEAR(0.4, gauss1.pdf(tmp), 10e-3);
+  EXPECT_NEAR(0.15, gauss2.pdf(tmp2), 10e-3);
 }
 
 int

@@ -128,7 +128,7 @@ namespace gmm
 
       while (iter < max_iter)
         {
-          // asume we are done at first :)
+          // assume we are done at first :)
           do_continue = false;
 
           // execute expectation step

@@ -10,7 +10,7 @@ namespace gmm
   template<int DIM>
     Gaussian<DIM>::Gaussian() :
       dim(DIM), mean_(VectorType::Zero()), covariance_(MatrixType::Identity()), cholesky_(
-          covariance_.llt()), partition_(1)
+          covariance_.llt()), partition_(sqrt(pow(2*M_PI, DIM)))
     {
     }
 
@@ -24,7 +24,7 @@ namespace gmm
     Gaussian<DIM>::draw(typename Gaussian<DIM>::VectorType &res) const
     {
       // at first draw N random variables from a normal distribution
-      for (int i = 0; i < dim; ++i)
+      for (int i = 0; i < DIM; ++i)
         res(i) = random_normal();
       // multiply with covariance matrix and add mean
       // to get a proper sample from the current distribution
@@ -41,7 +41,7 @@ namespace gmm
       // using the cholesky decomposition
       beta_ = cholesky_.matrixL().solve(tmp_);
       alpha_ = cholesky_.matrixL().transpose().solve(beta_);
-      g_float res = tmp_ * alpha_.dot(tmp_);
+      g_float res = tmp_.dot(alpha_);
       // finally calculate pdf response
       res *= 0.5;
       res = exp(-res) / partition_;
@@ -81,13 +81,8 @@ namespace gmm
       cholesky_.compute(covariance_);
       // TODO: assert that cov is actually symmetric positive definite
       // recompute partition
-      for (int i = 0; i < dim; ++i)
-        { // first compute determinant in tmp
-          tmp *= cov(i, i);
-        }
-      // square --> variance
-      tmp = tmp * tmp;
-      partition_ = sqrt(pow(M_PI, dim) * tmp);
+      tmp = covariance_.determinant();
+      partition_ = sqrt(pow(2*M_PI, DIM) * tmp);
       return *this;
     }
 
