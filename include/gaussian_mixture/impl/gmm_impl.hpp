@@ -25,7 +25,7 @@ namespace gmm
       // allocate appropriate number of gaussians
       gaussians_.resize(num);
       // set uniform priors
-      priors_.setConstant(1. / num);
+      priors_.setConstant(num, 1. / num);
       // finally store number of states for convenience
       num_states_ = num;
       return *this;

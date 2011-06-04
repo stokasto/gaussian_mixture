@@ -50,7 +50,7 @@ namespace gmm
 
           // now that we now the overall likeliehood we can calculate
           // the weighted likeliehood that a given state produced the data point
-          storage_.col(iter) = model_->getPriors() * tmp_pdf_ / likeliehood;
+          storage_.col(iter) = model_->getPriors().array() * tmp_pdf_.array() / likeliehood;
         }
       return log_likeliehood;
     }
