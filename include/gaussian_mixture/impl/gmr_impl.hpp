@@ -8,7 +8,7 @@ namespace gmm
 
   template<int DIM, int P_DIM>
     GMR<DIM, P_DIM>::GMR() :
-      initialized_(false), model_(0)
+      model_(0), initialized_(false)
     {
     }
   template<int DIM, int P_DIM>
@@ -29,10 +29,10 @@ namespace gmm
 
       for (int i = 0; i < num_states_; ++i)
         {
-          Gaussian<DIM> &gauss = model_->getGaussian(i);
-          converter_.push_back(gauss.getConverter());
+          const Gaussian<DIM> &gauss = model_->getGaussian(i);
+          converter_.push_back(gauss.template getConverter<P_DIM>());
           // precompute marginal
-          converter_.getMarginalDistribution(marginalGaussians_[i]);
+          converter_.back().getMarginalDistribution(marginalGaussians_[i]);
         }
       // resize weight vector
       weights_.resize(num_states_);
@@ -116,7 +116,7 @@ namespace gmm
               {
                 g_float weight_sqr = (weights_(state) / partition);
                 weight_sqr = weight_sqr * weight_sqr;
-                covariance(i,j) += weight_sqr * tmpCovar(i,j);
+                covariance(i, j) += weight_sqr * tmpCovar(i, j);
               }
         }
     }

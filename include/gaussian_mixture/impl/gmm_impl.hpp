@@ -9,7 +9,7 @@ namespace gmm
 {
   template<int DIM>
     GMM<DIM>::GMM() :
-      initialized_(false), num_states_(0)
+      num_states_(0), initialized_(false)
     {
     }
 
@@ -55,7 +55,7 @@ namespace gmm
       std::vector<int> assignments2(data.size());
       bool changed = false;
       // set old assignments to -1 initially
-      for (int i = 0; i < assignments2.size(); ++i)
+      for (int i = 0; i < (int) assignments2.size(); ++i)
         {
           assignments2[i] = -1;
         }
@@ -183,7 +183,7 @@ namespace gmm
         const std::vector<typename Gaussian<DIM>::VectorType>& pats, bool &changed)
     {
       int best_idx = 0;
-      g_float summed_dist;
+      g_float summed_dist = 0.;
       changed = false; // initially assume no assignment changed
 
       //#pragma omp parallel for
@@ -227,9 +227,8 @@ namespace gmm
     GMM<DIM>::updateClusters(std::vector<int> & assignments, const std::vector<typename Gaussian<
         DIM>::VectorType>& pats)
     {
-      int patterns_per_cluster[num_states_];
+      std::vector<int> patterns_per_cluster(num_states_);
       int curr_assignment = 0;
-      int prev_count = 0;
 
       for (int i = 0; i < num_states_; i++)
         { // reset pattern per cluster counts
@@ -252,7 +251,7 @@ namespace gmm
         { // normalize all prototype positions to get the proper mean of the pattern vectors
           if (patterns_per_cluster[i] > 0.)
             { // beware of the evil division by zero :)
-              gaussians_[curr_assignment].mean
+              gaussians_[curr_assignment].mean()
                   /= (patterns_per_cluster[i] > 0) ? patterns_per_cluster[i] : 1.;
             }
         }
@@ -263,6 +262,8 @@ namespace gmm
     void
     GMM<DIM>::draw(typename Gaussian<DIM>::VectorType &result) const
     {
+      if (!initialized_)
+        return;
       int state = 0;
       g_float accum = 0.;
       g_float thresh = random_uniform_0_1();
@@ -280,6 +281,8 @@ namespace gmm
     g_float
     GMM<DIM>::pdf(typename Gaussian<DIM>::VectorType x) const
     {
+      if (!initialized_)
+        return 0.;
       g_float likeliehood = 0., tmp = 0.;
       for (int i = 0; i < num_states_; ++i)
         {
@@ -295,6 +298,8 @@ namespace gmm
     int
     GMM<DIM>::mostLikelyGauss(typename Gaussian<DIM>::VectorType x) const
     {
+      if (!initialized_)
+        return 0;
       g_float best_likeliehood = 0., tmp = 0.;
       int best = 0;
       for (int i = 0; i < num_states_; ++i)
@@ -319,8 +324,8 @@ namespace gmm
       }
 
   template<int DIM>
-    Gaussian<DIM> &
-    GMM<DIM>::getGaussian(int state)
+    const Gaussian<DIM> &
+    GMM<DIM>::getGaussian(int state) const
     {
       assert(state >= 0 && state < num_states_);
       return gaussians_[state];

@@ -6,6 +6,7 @@
 
 #include <Eigen/Core>
 #include <Eigen/Cholesky>
+#include <Eigen/Dense>
 
 namespace gmm
 {
@@ -17,7 +18,6 @@ namespace gmm
     public:
       typedef Eigen::Matrix<g_float, DIM, DIM> MatrixType;
       typedef Eigen::Matrix<g_float, DIM, 1> VectorType;
-      const int dim;
 
     private:
       VectorType mean_;
@@ -63,6 +63,8 @@ namespace gmm
       getCovariance() const;
       const VectorType &
       getMean() const;
+      int
+      getDIM() const;
 
       template<int P_DIM>
         GaussianConverter<DIM, P_DIM>

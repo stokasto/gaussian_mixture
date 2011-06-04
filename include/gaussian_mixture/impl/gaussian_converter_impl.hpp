@@ -109,7 +109,7 @@ namespace gmm
     void
     GaussianConverter<DIM, P_DIM>::getMarginalDistribution(Gaussian<DIM - P_DIM> &result)
     {
-      typename Gaussian<DIM>::VectorType &mean = input_->getMean();
+      const typename Gaussian<DIM>::VectorType &mean = input_->getMean();
       result.setMean(mean.head(DIM-P_DIM));
       result.setCovariance(sigmaI_);
     }

@@ -9,8 +9,8 @@ namespace gmm
   /* gaussian implementation */
   template<int DIM>
     Gaussian<DIM>::Gaussian() :
-      dim(DIM), mean_(VectorType::Zero()), covariance_(MatrixType::Identity()), cholesky_(
-          covariance_.llt()), partition_(sqrt(pow(2*M_PI, DIM)))
+      mean_(VectorType::Zero()), covariance_(MatrixType::Identity()), cholesky_(covariance_.llt()),
+          partition_(sqrt(pow(2 * M_PI, DIM)))
     {
     }
 
@@ -72,6 +72,13 @@ namespace gmm
     }
 
   template<int DIM>
+    int
+    Gaussian<DIM>::getDIM() const
+    {
+      return DIM;
+    }
+
+  template<int DIM>
     Gaussian<DIM> &
     Gaussian<DIM>::setCovariance(const typename Gaussian<DIM>::MatrixType &cov)
     {
@@ -82,7 +89,7 @@ namespace gmm
       // TODO: assert that cov is actually symmetric positive definite
       // recompute partition
       tmp = covariance_.determinant();
-      partition_ = sqrt(pow(2*M_PI, DIM) * tmp);
+      partition_ = sqrt(pow(2 * M_PI, DIM) * tmp);
       return *this;
     }
 
