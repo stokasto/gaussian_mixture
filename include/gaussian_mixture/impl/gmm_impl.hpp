@@ -112,7 +112,6 @@ namespace gmm
               DEBUG_STREAM(gaussians_[i].getCovariance());
             }
         }
-
       // END DEBUG ONLY
 
       return *this;
@@ -204,9 +203,10 @@ namespace gmm
     {
       int best_idx = 0;
       g_float summed_dist = 0.;
-      changed = false; // initially assume no assignment changed
 
-      //#pragma omp parallel for
+      // initially assume no assignment changed
+      changed = false;
+
       for (int i = 0; i < (int) pats.size(); ++i)
         { // for each pattern find the best assignment to a prototype
           g_float dist = GFLOAT_MAX;
@@ -223,6 +223,7 @@ namespace gmm
           assignments[i] = best_idx;
           summed_dist += dist;
         }
+
       for (int i = 0; i < (int) pats.size(); ++i)
         {
           if (assignments[i] != old_assignments[i])

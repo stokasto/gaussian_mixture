@@ -117,7 +117,8 @@ namespace gmm
     {
       if (msg.dim != DIM)
         {
-          ERROR_STREAM("called fromMessage with message of invalid dimension: " << msg.dim << " this dim: " << DIM);
+          ERROR_STREAM("called fromMessage with message of invalid dimension: "
+              << msg.dim << " this dim: " << DIM);
           return false;
         }
 
@@ -193,22 +194,22 @@ namespace gmm
           rosbag::View view(bag, rosbag::TopicQuery("gaussian"));
           int count = 0;
           BOOST_FOREACH(rosbag::MessageInstance const msg, view)
-                  {
-                    if (count > 1)
-                      {
-                        ERROR_STREAM("More than one Gaussian stored in bag file!");
-                        return false;
-                      }
-                    ++count;
+            {
+              if (count > 1)
+                {
+                  ERROR_STREAM("More than one Gaussian stored in bag file!");
+                  return false;
+                }
+              ++count;
 
-                    gaussian_mixture::GaussianModelConstPtr model = msg.instantiate<
-                        gaussian_mixture::GaussianModel> ();
-                    if (!fromMessage(*model))
-                      {
-                        ERROR_STREAM("Could not initialize Gaussian from message!");
-                        return false;
-                      }
-                  }
+              gaussian_mixture::GaussianModelConstPtr model = msg.instantiate<
+              gaussian_mixture::GaussianModel> ();
+              if (!fromMessage(*model))
+                {
+                  ERROR_STREAM("Could not initialize Gaussian from message!");
+                  return false;
+                }
+            }
           bag.close();
         }
       catch (rosbag::BagIOException e)

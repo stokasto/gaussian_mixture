@@ -30,7 +30,7 @@ namespace gmm
       for (int i = 0; i < num_states_; ++i)
         {
           const Gaussian<DIM> &gauss = model_->getGaussian(i);
-          converter_.push_back(gauss.template getConverter<P_DIM>());
+          converter_.push_back(gauss.template getConverter<P_DIM> ());
           // precompute marginal
           converter_.back().getMarginalDistribution(marginalGaussians_[i]);
         }
@@ -43,13 +43,14 @@ namespace gmm
 
   template<int DIM, int P_DIM>
     void
-    GMR<DIM, P_DIM>::query(const typename Gaussian<DIM-P_DIM>::VectorType &input,
+    GMR<DIM, P_DIM>::query(const typename Gaussian<DIM - P_DIM>::VectorType &input,
         typename Gaussian<P_DIM>::VectorType &sample)
     {
       if (!initialized_ || !model_)
         return;
       if (num_states_ < 1)
         return;
+
       g_float partition = 0.;
       g_float accumulator = 0.;
       g_float thresh = random_uniform_0_1();
@@ -83,8 +84,8 @@ namespace gmm
     }
   template<int DIM, int P_DIM>
     void
-    GMR<DIM, P_DIM>::getConditionalDistribution(const typename Gaussian<DIM - P_DIM>::VectorType &input,
-        Gaussian<P_DIM> &result)
+    GMR<DIM, P_DIM>::getConditionalDistribution(
+        const typename Gaussian<DIM - P_DIM>::VectorType &input, Gaussian<P_DIM> &result)
     {
       g_float partition = 0.;
       int state;
@@ -109,7 +110,8 @@ namespace gmm
       // and calculate variance
       for (state = 0; state < num_states_; ++state)
         {
-          const typename Gaussian<P_DIM>::MatrixType &tmpCovar = condGaussians_[state].getCovariance();
+          const typename Gaussian<P_DIM>::MatrixType &tmpCovar =
+              condGaussians_[state].getCovariance();
           for (int i = 0; i < resultCovar_.rows(); ++i)
             for (int j = 0; j < resultCovar_.cols(); ++j)
               {

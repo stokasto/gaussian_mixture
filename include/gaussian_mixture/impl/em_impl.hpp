@@ -92,7 +92,8 @@ namespace gmm
           for (iter = 0; iter < (int) data.size(); ++iter)
             {
               // --> mean as weighted sum
-              //DEBUG_STREAM("likeliehood for " << state << " point " << iter << ": " << storage_(state, iter));
+              //DEBUG_STREAM("likeliehood for " << state << " point " << iter << ": "
+              //                                << storage_(state, iter));
               mean += storage_(state, iter) * data[iter];
               likeliehood += storage_(state, iter);
             }
