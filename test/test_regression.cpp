@@ -39,7 +39,7 @@ int main(void)
   EM<2> em = gmm.getEM();
   // run em
   std::cout << "Running em algorithm" << std::endl;
-  em.runEM(train_data, 0.1, 300);
+  em.runEM(train_data, 0.01, 300);
   std::cout << "DONE running em algorithm" << std::endl;
   // get regression model
   std::cout << "Getting regression model" << std::endl;
