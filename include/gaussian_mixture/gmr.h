@@ -41,7 +41,7 @@ namespace gmm
           typename Gaussian<P_DIM>::VectorType &sample);
       void
       getConditionalDistribution(const typename Gaussian<DIM-P_DIM>::VectorType &input,
-          Gaussian<P_DIM> &result) const;
+          Gaussian<P_DIM> &result);
       const GMM<DIM> &
       getInputGMM() const;
 

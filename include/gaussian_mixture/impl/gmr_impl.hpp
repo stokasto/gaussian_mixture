@@ -36,7 +36,8 @@ namespace gmm
         }
       // resize weight vector
       weights_.resize(num_states_);
-
+      // mark as initialized
+      initialized_ = true;
       return *this;
     }
 
@@ -83,12 +84,12 @@ namespace gmm
   template<int DIM, int P_DIM>
     void
     GMR<DIM, P_DIM>::getConditionalDistribution(const typename Gaussian<DIM - P_DIM>::VectorType &input,
-        Gaussian<P_DIM> &result) const
+        Gaussian<P_DIM> &result)
     {
-      g_float partition;
+      g_float partition = 0.;
       int state;
-      typename Gaussian<P_DIM>::VectorType &mean = result.mean();
-      typename Gaussian<P_DIM>::MatrixType &covariance = result.getCovariance();
+      typename Gaussian<P_DIM>::VectorType mean;
+      typename Gaussian<P_DIM>::MatrixType covariance;
 
       // zero out mean and covariance first
       mean.setZero();
@@ -110,7 +111,7 @@ namespace gmm
       // and calculate variance
       for (state = 0; state < num_states_; ++state)
         {
-          typename Gaussian<P_DIM>::MatrixType &tmpCovar = condGaussians_[state].getCovariance();
+          const typename Gaussian<P_DIM>::MatrixType &tmpCovar = condGaussians_[state].getCovariance();
           for (int i = 0; i < covariance.rows(); ++i)
             for (int j = 0; j < covariance.cols(); ++j)
               {
@@ -119,6 +120,8 @@ namespace gmm
                 covariance(i, j) += weight_sqr * tmpCovar(i, j);
               }
         }
+
+      result.setMean(mean).setCovariance(covariance);
     }
 
   template<int DIM, int P_DIM>

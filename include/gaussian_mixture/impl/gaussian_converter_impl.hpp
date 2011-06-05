@@ -101,7 +101,12 @@ namespace gmm
       // calculate covariance
       tmp_llt_sigmaIO_ = llt_.matrixL().solve(sigmaIO_);
       resultCovar_ = sigmaO_ - sigmaOI_ * llt_.matrixL().transpose().solve(tmp_llt_sigmaIO_);
-
+      /* // DEBUG ONLY
+      std::cout << "mean of conditional: " << std::endl;
+      std::cout << resultMean_ << std::endl;
+      std::cout << "covar of conditional: " << std::endl;
+      std::cout << resultCovar_ << std::endl;
+      */
       result.setMean(resultMean_).setCovariance(resultCovar_);
     }
 

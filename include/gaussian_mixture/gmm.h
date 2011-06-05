@@ -60,10 +60,10 @@ namespace gmm
       draw(typename Gaussian<DIM>::VectorType &result) const;
       // calculate pdf for given point x
       g_float
-      pdf(typename Gaussian<DIM>::VectorType x) const;
+      pdf(const typename Gaussian<DIM>::VectorType x) const;
       // compute most likely gauss from mixture model for point x
       int
-      mostLikelyGauss(typename Gaussian<DIM>::VectorType x) const;
+      mostLikelyGauss(const typename Gaussian<DIM>::VectorType x) const;
 
       // getter
       template<int P_DIM>

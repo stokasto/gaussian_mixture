@@ -47,16 +47,18 @@ int main(void)
   Gaussian<1>::VectorType source;
   Gaussian<1>::VectorType target;
   Gaussian<2>::VectorType sample;
+  Gaussian<1> cond;
   // and draw samples from it
   for(int i = 0; i < n_data; ++i)
     {
       g_float sign = (random_uniform_0_1() > 0.5) ? -1 : 1;
-      g_float posx = sign * random_uniform_0_1() * 20.;
+      g_float posx = sign * random_uniform_0_1() * 7.;
       source(0) = posx;
-      gmm.draw(sample);
-      //gmr.query(source, target);
-      
-      regression << sample(0) << "\t" << sample(1) << std::endl;
+      //gmm.draw(sample);
+      gmr.getConditionalDistribution(source, cond);
+      cond.draw(target);
+      //regression << sample(0) << "\t" << sample(1) << std::endl;
+      regression << source(0) << "\t" << target(0) << std::endl;
     }
   regression.flush();
   regression.close();

@@ -323,7 +323,7 @@ namespace gmm
 
   template<int DIM>
     g_float
-    GMM<DIM>::pdf(typename Gaussian<DIM>::VectorType x) const
+    GMM<DIM>::pdf(const typename Gaussian<DIM>::VectorType x) const
     {
       if (!initialized_)
         return 0.;
@@ -340,7 +340,7 @@ namespace gmm
 
   template<int DIM>
     int
-    GMM<DIM>::mostLikelyGauss(typename Gaussian<DIM>::VectorType x) const
+    GMM<DIM>::mostLikelyGauss(const typename Gaussian<DIM>::VectorType x) const
     {
       if (!initialized_)
         return 0;
