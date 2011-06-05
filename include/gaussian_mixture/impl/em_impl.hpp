@@ -63,8 +63,8 @@ namespace gmm
                   storage_.col(iter)(i) = GFLOAT_MIN;
                 }
             }
-          //DEBUG_STREAM(<< "likeliehoods for " << iter << ":");
-          //DEBUG_STREAM(<< storage_.col(iter).transpose());
+          //DEBUG_STREAM("likeliehoods for " << iter << ":");
+          //DEBUG_STREAM(storage_.col(iter).transpose());
         }
       return log_likeliehood / data.size();
     }
@@ -92,7 +92,7 @@ namespace gmm
           for (iter = 0; iter < (int) data.size(); ++iter)
             {
               // --> mean as weighted sum
-              //DEBUG_STREAM(<< "likeliehood for " << state << " point " << iter << ": " << storage_(state, iter));
+              //DEBUG_STREAM("likeliehood for " << state << " point " << iter << ": " << storage_(state, iter));
               mean += storage_(state, iter) * data[iter];
               likeliehood += storage_(state, iter);
             }
@@ -107,8 +107,8 @@ namespace gmm
           // normalize covariance
           covariance /= likeliehood;
           // set new mean and covariance
-          DEBUG_STREAM(<< "new mean for state " << state << ":");
-          DEBUG_STREAM(<< mean.transpose());
+          DEBUG_STREAM("new mean for state " << state << ":");
+          DEBUG_STREAM(mean.transpose());
           model_->gaussian(state).setMean(mean).setCovariance(covariance);
           // set the prior to be the overall likeliehood
           model_->setPrior(state, likeliehood / data.size());

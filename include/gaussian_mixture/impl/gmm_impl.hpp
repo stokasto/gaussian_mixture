@@ -92,7 +92,7 @@ namespace gmm
           // check if an assignment changed --> if not we are done
           if (!changed)
             {
-              DEBUG_STREAM(<< "No assignment changed ... kmeans finished after " << iter
+              DEBUG_STREAM("No assignment changed ... kmeans finished after " << iter
                   << " iterations");
               break;
             }
@@ -106,10 +106,10 @@ namespace gmm
         {
           for (int i = 0; i < num_states_; ++i)
             {
-              DEBUG_STREAM( << "afterKMEANS: mean of state " << i << ":");
-              DEBUG_STREAM( << gaussians_[i].getMean().transpose());
-              DEBUG_STREAM( << "covariance:");
-              DEBUG_STREAM( << gaussians_[i].getCovariance());
+              DEBUG_STREAM("afterKMEANS: mean of state " << i << ":");
+              DEBUG_STREAM(gaussians_[i].getMean().transpose());
+              DEBUG_STREAM("covariance:");
+              DEBUG_STREAM(gaussians_[i].getCovariance());
             }
         }
 
@@ -220,13 +220,6 @@ namespace gmm
                   best_idx = g_idx;
                 }
             }
-          //ROS_DEBUG_STREAM(KM_LVL, << "Best prototype for: " << pats[i].transpose()
-          //    << " is: " << centers_[best_idx]->transpose() << " at idx: " << best_idx);
-          /*if (!changed // we have not  yet found and assignment that has changed
-           && assignments[i] != best_idx)
-           { // check if assignment changed --> if so update changed flag
-           changed = true;
-           }*/
           assignments[i] = best_idx;
           summed_dist += dist;
         }
@@ -238,7 +231,7 @@ namespace gmm
               break;
             }
         }
-      //ROS_DEBUG_STREAM(KM_LVL, << "DONE COMPUTING CLUSTERS");
+      //DEBUG_STREAM("DONE COMPUTING CLUSTERS");
       return summed_dist;
     }
 
@@ -267,8 +260,6 @@ namespace gmm
           ++patterns_per_cluster[curr_assignment];
           // update center of closest prototype
           gaussians_[curr_assignment].mean() += pats[i];
-          //ROS_DEBUG_STREAM(KM_LVL+1, << "prototype " << curr_assignment << " has now "
-          //    << patterns_per_cluster[curr_assignment] << " assigned patterns");
         }
 
       for (int i = 0; i < num_states_; i++)
@@ -446,12 +437,12 @@ GMM<DIM>::fromMessage(const gaussian_mixture::GaussianMixtureModel &msg)
   {
     if (msg.dim != DIM)
       {
-        ERROR_STREAM(<< "cannot initialize gmm of dim " << DIM << " from model with dim " << msg.dim);
+        ERROR_STREAM("cannot initialize gmm of dim " << DIM << " from model with dim " << msg.dim);
         return false;
       }
     if (msg.num_states < 1)
       {
-        ERROR_STREAM(<< "cannot read model with 0 states from message!");
+        ERROR_STREAM("cannot read model with 0 states from message!");
         return false;
       }
     bool res = true;
@@ -480,7 +471,7 @@ GMM<DIM>::toMessage(gaussian_mixture::GaussianMixtureModel &msg) const
   {
     if (num_states_ < 1)
       {
-        ERROR_STREAM(<< "cannot write model with 0 states to message!");
+        ERROR_STREAM("cannot write model with 0 states to message!");
         return false;
       }
     bool res = true;
@@ -516,7 +507,7 @@ GMM<DIM>::toBag(const std::string &bag_file)
         gaussian_mixture::GaussianMixtureModel msg;
         if (!toMessage(msg))
           {
-            ERROR_STREAM( << "Could not convert GMM to message.");
+            ERROR_STREAM("Could not convert GMM to message.");
             return false;
           }
         bag.write("gaussian_mixture_model", ros::Time::now(), msg);
@@ -543,7 +534,7 @@ GMM<DIM>::fromBag(const std::string &bag_file)
           {
             if (count > 1)
               {
-                ERROR_STREAM( << "More than one GMM stored in bag file!");
+                ERROR_STREAM("More than one GMM stored in bag file!");
                 return false;
               }
             ++count;
@@ -552,7 +543,7 @@ GMM<DIM>::fromBag(const std::string &bag_file)
             gaussian_mixture::GaussianMixtureModelConstPtr> ();
             if (!fromMessage(*model))
               {
-                ERROR_STREAM( << "Could not initialize GMM from message!");
+                ERROR_STREAM("Could not initialize GMM from message!");
                 return false;
               }
           }

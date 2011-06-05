@@ -117,7 +117,7 @@ namespace gmm
     {
       if (msg.dim != DIM)
         {
-          ERROR_STREAM(<< "called fromMessage with message of invalid dimension: " << msg.dim << " this dim: " << DIM);
+          ERROR_STREAM("called fromMessage with message of invalid dimension: " << msg.dim << " this dim: " << DIM);
           return false;
         }
 
@@ -169,7 +169,7 @@ namespace gmm
           gaussian_mixture::GaussianModel msg;
           if (!toMessage(msg))
             {
-              ERROR_STREAM( << "Could not convert Gaussian to message.");
+              ERROR_STREAM("Could not convert Gaussian to message.");
               return false;
             }
           bag.write("gaussian", ros::Time::now(), msg);
@@ -196,7 +196,7 @@ namespace gmm
                   {
                     if (count > 1)
                       {
-                        ERROR_STREAM( << "More than one Gaussian stored in bag file!");
+                        ERROR_STREAM("More than one Gaussian stored in bag file!");
                         return false;
                       }
                     ++count;
@@ -205,7 +205,7 @@ namespace gmm
                         gaussian_mixture::GaussianModel> ();
                     if (!fromMessage(*model))
                       {
-                        ERROR_STREAM( << "Could not initialize Gaussian from message!");
+                        ERROR_STREAM("Could not initialize Gaussian from message!");
                         return false;
                       }
                   }
