@@ -21,10 +21,13 @@ namespace gmm
       // storage for marginal and conditional distributions extracted from the model
       std::vector<Gaussian<DIM-P_DIM> > marginalGaussians_;
       std::vector<Gaussian<P_DIM> > condGaussians_;
-      // for convenience --> should be == condGaussians_.size()
-      int num_states_;
-      Eigen::VectorXd weights_;
+      int num_states_; // for convenience --> should be == condGaussians_.size()
       bool initialized_;
+      // temporary storage
+      Eigen::VectorXd weights_;
+      typename Gaussian<P_DIM>::VectorType resultMean_;
+      typename Gaussian<P_DIM>::MatrixType resultCovar_;
+
 
     public:
       EIGEN_MAKE_ALIGNED_OPERATOR_NEW

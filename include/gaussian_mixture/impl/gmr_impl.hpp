@@ -88,12 +88,10 @@ namespace gmm
     {
       g_float partition = 0.;
       int state;
-      typename Gaussian<P_DIM>::VectorType mean;
-      typename Gaussian<P_DIM>::MatrixType covariance;
 
       // zero out mean and covariance first
-      mean.setZero();
-      covariance.setZero();
+      resultMean_.setZero();
+      resultCovar_.setZero();
 
       // get weights of all distributions
       for (state = 0; state < num_states_; ++state)
@@ -103,25 +101,25 @@ namespace gmm
           // also update the conditional
           converter_[state].getConditionalDistribution(input, condGaussians_[state]);
           // and update the mean
-          mean += weights_(state) * condGaussians_[state].getMean();
+          resultMean_ += weights_(state) * condGaussians_[state].getMean();
         }
       // scale mean
-      mean /= partition;
+      resultMean_ /= partition;
 
       // and calculate variance
       for (state = 0; state < num_states_; ++state)
         {
           const typename Gaussian<P_DIM>::MatrixType &tmpCovar = condGaussians_[state].getCovariance();
-          for (int i = 0; i < covariance.rows(); ++i)
-            for (int j = 0; j < covariance.cols(); ++j)
+          for (int i = 0; i < resultCovar_.rows(); ++i)
+            for (int j = 0; j < resultCovar_.cols(); ++j)
               {
                 g_float weight_sqr = (weights_(state) / partition);
                 weight_sqr = weight_sqr * weight_sqr;
-                covariance(i, j) += weight_sqr * tmpCovar(i, j);
+                resultCovar_(i, j) += weight_sqr * tmpCovar(i, j);
               }
         }
 
-      result.setMean(mean).setCovariance(covariance);
+      result.setMean(resultMean_).setCovariance(resultCovar_);
     }
 
   template<int DIM, int P_DIM>
