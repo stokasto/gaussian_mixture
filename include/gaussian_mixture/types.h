@@ -1,11 +1,25 @@
 #ifndef GMM_TYPES_H_
 #define GMM_TYPES_H_
 
+#include <limits>
+
+#ifndef DEBUG_STREAM
+#if 1 // can turn of debugging completely here
+#define DEBUG_STREAM(X) { \
+  std::cerr << "DEBUG: " X << std::endl; \
+}
+#else
+#define DEBUG_STREAM(X)
+#endif
+#endif
+
 namespace gmm
 {
-  const int GFLOAT_MIN = -1e7;
-  const int GFLOAT_MAX = 1e7;
+  const bool DEBUG = true;
+
   typedef float g_float;
+  const g_float GFLOAT_MIN = std::numeric_limits<g_float>::min();//-1e7;
+  const g_float GFLOAT_MAX = std::numeric_limits<g_float>::max();//1e7;
 
   // gaussian definition
   template<int DIM>
@@ -21,7 +35,7 @@ namespace gmm
     class GMR;
   // EM algorithm on gaussian mixture models
   template<int DIM>
-      class EM;
+    class EM;
 }
 
 #endif /* GMM_TYPES_H_ */

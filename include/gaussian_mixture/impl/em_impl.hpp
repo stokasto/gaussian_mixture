@@ -42,7 +42,6 @@ namespace gmm
           for (state = 0; state < num_states_; ++state)
             {
               // query pdf of respective gaussian
-              //std::cout << "distance: " << (data[iter] - model_->gaussian(state).getMean()).norm() << " pdf: " << model_->gaussian(state).pdf(data[iter]) << std::endl;
               tmp_pdf_[state] = model_->gaussian(state).pdf(data[iter]);
               // and accumulate likeliehood
               likeliehood += model_->getPrior(state) * tmp_pdf_[state];
@@ -64,8 +63,8 @@ namespace gmm
                   storage_.col(iter)(i) = GFLOAT_MIN;
                 }
             }
-          //std::cout << "likeliehoods for " << iter << ":" << std::endl;
-          //std::cout << storage_.col(iter).transpose() << std::endl;
+          //DEBUG_STREAM(<< "likeliehoods for " << iter << ":");
+          //DEBUG_STREAM(<< storage_.col(iter).transpose());
         }
       return log_likeliehood / data.size();
     }
@@ -93,7 +92,7 @@ namespace gmm
           for (iter = 0; iter < (int) data.size(); ++iter)
             {
               // --> mean as weighted sum
-              //std::cout << "likeliehood for " << state << " point " << iter << ": " << storage_(state, iter) << std::endl;
+              //DEBUG_STREAM(<< "likeliehood for " << state << " point " << iter << ": " << storage_(state, iter));
               mean += storage_(state, iter) * data[iter];
               likeliehood += storage_(state, iter);
             }
@@ -108,8 +107,8 @@ namespace gmm
           // normalize covariance
           covariance /= likeliehood;
           // set new mean and covariance
-          std::cout << "new mean for state " << state << ":" << std::endl;
-          std::cout << mean.transpose() << std::endl;
+          DEBUG_STREAM(<< "new mean for state " << state << ":");
+          DEBUG_STREAM(<< mean.transpose());
           model_->gaussian(state).setMean(mean).setCovariance(covariance);
           // set the prior to be the overall likeliehood
           model_->setPrior(state, likeliehood / data.size());

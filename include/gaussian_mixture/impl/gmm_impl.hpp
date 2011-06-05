@@ -92,8 +92,8 @@ namespace gmm
           // check if an assignment changed --> if not we are done
           if (!changed)
             {
-              std::cout << "No assignment changed .. kmeans finished after " << iter
-                  << " iterations" << std::endl;
+              DEBUG_STREAM(<< "No assignment changed ... kmeans finished after " << iter
+                  << " iterations");
               break;
             }
 
@@ -102,13 +102,15 @@ namespace gmm
       initialized_ = true;
 
       // START DEBUG ONLY
-
-      for (int i = 0; i < num_states_; ++i)
+      if (DEBUG)
         {
-          std::cout << "afterKMEANS: mean of state " << i << ":" << std::endl;
-          std::cout << gaussians_[i].getMean().transpose() << std::endl;
-          std::cout << "covariance:" << std::endl;
-          std::cout << gaussians_[i].getCovariance() << std::endl;
+          for (int i = 0; i < num_states_; ++i)
+            {
+              DEBUG_STREAM( << "afterKMEANS: mean of state " << i << ":");
+              DEBUG_STREAM( << gaussians_[i].getMean().transpose());
+              DEBUG_STREAM( << "covariance:");
+              DEBUG_STREAM( << gaussians_[i].getCovariance());
+            }
         }
 
       // END DEBUG ONLY
