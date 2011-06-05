@@ -108,6 +108,54 @@ namespace gmm
       {
         return GaussianConverter<DIM, P_DIM> ().setInputGaussian(*this);
       }
+
+  template<int DIM>
+    bool
+    Gaussian<DIM>::fromMessage(const gaussian_mixture::GaussianModel &msg)
+    {
+      if (msg.dim != DIM)
+        {
+          ERROR_STREAM(<< "called fromMessage with message of invalid dimension: " << msg.dim << " this dim: " << DIM);
+          return false;
+        }
+
+      // copy mean from message
+      for (int i = 0; i < DIM; ++i)
+        mean_(i) = msg.mean[i];
+
+      // copy covariance matrix from message
+      int idx = 0;
+      for (int i = 0; i < DIM; ++i)
+        for (int j = 0; j < DIM; ++j)
+          {
+            covariance_(i, j) = msg.covariance[idx];
+            ++idx;
+          }
+      return true;
+    }
+
+  template<int DIM>
+    bool
+    Gaussian<DIM>::toMessage(gaussian_mixture::GaussianModel &msg) const
+    {
+      msg.dim = DIM;
+
+      // copy mean into message
+      msg.mean.resize(DIM);
+      for (int i = 0; i < DIM; ++i)
+        msg.mean[i] = mean_(i);
+
+      // copy covariance matrix into message in row major form
+      msg.covariance.resize(DIM * DIM);
+      int idx = 0;
+      for (int i = 0; i < DIM; ++i)
+        for (int j = 0; j < DIM; ++j)
+          {
+            msg.covariance[idx] = covariance_(i, j);
+            ++idx;
+          }
+      return true;
+    }
 }
 
 #endif /* GAUSSIAN_IMPL_HPP_ */

@@ -13,6 +13,16 @@
 #endif
 #endif
 
+#ifndef ERROR_STREAM
+#if 1 // can turn of debugging completely here
+#define ERROR_STREAM(X) { \
+  std::cerr << "ERROR: " X << std::endl; \
+}
+#else
+#define ERROR_STREAM(X)
+#endif
+#endif
+
 namespace gmm
 {
   const bool DEBUG = true;

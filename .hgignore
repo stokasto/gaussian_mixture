@@ -21,3 +21,4 @@ msg_gen
 *.avi
 *.so
 *.swp
+*.py

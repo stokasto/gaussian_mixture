@@ -3,6 +3,8 @@
 
 #include <gaussian_mixture/types.h>
 #include <gaussian_mixture/random.h>
+// Gaussian.h holds the message definition
+#include <gaussian_mixture/GaussianModel.h>
 
 #include <Eigen/Core>
 #include <Eigen/Cholesky>
@@ -69,6 +71,11 @@ namespace gmm
       template<int P_DIM>
         GaussianConverter<DIM, P_DIM>
         getConverter() const;
+
+      bool
+      fromMessage(const gaussian_mixture::GaussianModel &msg);
+      bool
+      toMessage(gaussian_mixture::GaussianModel &msg) const;
 
       //TODO: toFile method
     };

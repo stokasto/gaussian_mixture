@@ -1,7 +1,7 @@
 #ifndef GMM_IMPL_HPP_
 #define GMM_IMPL_HPP_
 
-#include <cmath>
+#include <math.h>
 
 #include <gaussian_mixture/gmm.h>
 
@@ -427,8 +427,74 @@ namespace gmm
     const Eigen::VectorXd
     GMM<DIM>::getPriors() const
     {
-      assert (initialized_);
+      assert(initialized_);
       return priors_;
+    }
+
+  template<int DIM>
+    bool
+    GMM<DIM>::fromMessage(const gaussian_mixture::GaussianMixtureModel &msg)
+    {
+      if (msg.dim != DIM)
+        {
+          ERROR_STREAM(<< "cannot initialize gmm of dim " << DIM << " from model with dim " << msg.dim);
+          return false;
+        }
+      if (msg.num_states < 1)
+        {
+          ERROR_STREAM(<< "cannot read model with 0 states from message!");
+          return false;
+        }
+      bool res = true;
+      setNumStates(msg.num_states);
+      initialized_ = msg.initialized;
+
+      // copy prior probabilities
+      for (int i = 0; i < num_states_; ++i)
+        {
+          priors_(i) = msg.priors[i];
+        }
+
+      // read all gaussians from message
+      for (int i = 0; i < num_states_; ++i)
+        {
+          res &= gaussians_[i].fromMessage(msg.gaussians[i]);
+          if (!res) // fail early
+            return false;
+        }
+      return res;
+    }
+
+  template<int DIM>
+    bool
+    GMM<DIM>::toMessage(gaussian_mixture::GaussianMixtureModel &msg) const
+    {
+      if (num_states_ < 1)
+        {
+          ERROR_STREAM(<< "cannot write model with 0 states to message!");
+          return false;
+        }
+      bool res = true;
+      msg.dim = DIM;
+      msg.num_states = num_states_;
+      msg.initialized = initialized_;
+
+      // copy prior probabilities
+      msg.priors.resize(num_states_);
+      for (int i = 0; i < num_states_; ++i)
+        {
+          msg.priors[i] = priors_(i);
+        }
+
+      msg.gaussians.resize(num_states_);
+      // write all gaussians to a message
+      for (int i = 0; i < num_states_; ++i)
+        {
+          res &= gaussians_[i].toMessage(msg.gaussians[i]);
+          if (!res) // fail early
+            return false;
+        }
+      return res;
     }
 
 }

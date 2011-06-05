@@ -3,6 +3,8 @@
 
 #include <gaussian_mixture/types.h>
 #include <gaussian_mixture/gaussian.h>
+// include ros message
+#include <gaussian_mixture/GaussianMixtureModel.h>
 
 #include <Eigen/Core>
 #include <vector>
@@ -91,6 +93,11 @@ namespace gmm
 
       const Eigen::VectorXd
       getPriors() const;
+
+      bool
+      fromMessage(const gaussian_mixture::GaussianMixtureModel &msg);
+      bool
+      toMessage(gaussian_mixture::GaussianMixtureModel &msg) const;
       // TODO: toFile methods
 
     };
