@@ -10,6 +10,12 @@
 #include <vector>
 #include <iostream>
 
+#ifdef GMM_ROS
+#include <rosbag/bag.h>
+#include <rosbag/view.h>
+#include <boost/foreach.hpp>
+#endif
+
 namespace gmm
 {
   template<int DIM>
@@ -94,10 +100,19 @@ namespace gmm
       const Eigen::VectorXd
       getPriors() const;
 
+      void
+      forceInitialize();
+
+#ifdef GMM_ROS
       bool
       fromMessage(const gaussian_mixture::GaussianMixtureModel &msg);
       bool
       toMessage(gaussian_mixture::GaussianMixtureModel &msg) const;
+      bool
+      toBag(const std::string &bag_file);
+      bool
+      fromBag(const std::string &bag_file);
+#endif
       // TODO: toFile methods
 
     };

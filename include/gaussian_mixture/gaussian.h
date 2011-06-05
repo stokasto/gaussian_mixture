@@ -10,6 +10,14 @@
 #include <Eigen/Cholesky>
 #include <Eigen/Dense>
 
+#include <string>
+
+#ifdef GMM_ROS
+#include <rosbag/bag.h>
+#include <rosbag/view.h>
+#include <boost/foreach.hpp>
+#endif
+
 namespace gmm
 {
 
@@ -72,12 +80,18 @@ namespace gmm
         GaussianConverter<DIM, P_DIM>
         getConverter() const;
 
+#ifdef GMM_ROS
       bool
       fromMessage(const gaussian_mixture::GaussianModel &msg);
       bool
       toMessage(gaussian_mixture::GaussianModel &msg) const;
+      bool
+      toBag(const std::string &bag_file);
+      bool
+      fromBag(const std::string &bag_file);
+#endif
+      // TODO: toFile methods
 
-      //TODO: toFile method
     };
 
 }

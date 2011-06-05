@@ -2,6 +2,7 @@
 #define GMM_TYPES_H_
 
 #include <limits>
+#include <iostream>
 
 #ifndef DEBUG_STREAM
 #if 1 // can turn of debugging completely here

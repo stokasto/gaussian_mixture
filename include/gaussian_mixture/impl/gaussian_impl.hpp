@@ -109,6 +109,8 @@ namespace gmm
         return GaussianConverter<DIM, P_DIM> ().setInputGaussian(*this);
       }
 
+#ifdef GMM_ROS
+
   template<int DIM>
     bool
     Gaussian<DIM>::fromMessage(const gaussian_mixture::GaussianModel &msg)
@@ -156,6 +158,68 @@ namespace gmm
           }
       return true;
     }
+
+  template<int DIM>
+    bool
+    Gaussian<DIM>::toBag(const std::string &bag_file)
+    {
+      try
+        {
+          rosbag::Bag bag(bag_file, rosbag::bagmode::Write);
+          gaussian_mixture::GaussianModel msg;
+          if (!toMessage(msg))
+            {
+              ERROR_STREAM( << "Could not convert Gaussian to message.");
+              return false;
+            }
+          bag.write("gaussian", ros::Time::now(), msg);
+          bag.close();
+        }
+      catch (rosbag::BagIOException e)
+        {
+          ROS_ERROR("Could not open bag file %s: %s", bag_file.c_str(), e.what());
+          return false;
+        }
+      return true;
+    }
+
+  template<int DIM>
+    bool
+    Gaussian<DIM>::fromBag(const std::string &bag_file)
+    {
+      try
+        {
+          rosbag::Bag bag(bag_file, rosbag::bagmode::Read);
+          rosbag::View view(bag, rosbag::TopicQuery("gaussian"));
+          int count = 0;
+          BOOST_FOREACH(rosbag::MessageInstance const msg, view)
+                  {
+                    if (count > 1)
+                      {
+                        ERROR_STREAM( << "More than one Gaussian stored in bag file!");
+                        return false;
+                      }
+                    ++count;
+
+                    gaussian_mixture::GaussianModelConstPtr model = msg.instantiate<
+                        gaussian_mixture::GaussianModel> ();
+                    if (!fromMessage(*model))
+                      {
+                        ERROR_STREAM( << "Could not initialize Gaussian from message!");
+                        return false;
+                      }
+                  }
+          bag.close();
+        }
+      catch (rosbag::BagIOException e)
+        {
+          ROS_ERROR("Could not open bag file %s: %s", bag_file.c_str(), e.what());
+          return false;
+        }
+      return true;
+    }
+
+#endif
 }
 
 #endif /* GAUSSIAN_IMPL_HPP_ */

@@ -197,6 +197,8 @@ TEST(Gaussian, testPDF)
   EXPECT_NEAR(0.15, gauss2.pdf(tmp2), 10e-3);
 }
 
+#include <gaussian_mixture/GaussianModel.h>
+
 int
 main(int argc, char **argv)
 {
