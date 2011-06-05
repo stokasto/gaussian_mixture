@@ -70,13 +70,13 @@ namespace gmm
       for (int iter = 1; iter < max_iter; ++iter)
         {
           // 1) --> update clusters with the new assignments
-          if (iter % 2 != 0)
+          if (iter % 2 == 0)
             {
-              updateClusters(assignments, data);
+              updateClusters(assignments2, data);
             }
           else
             {
-              updateClusters(assignments2, data);
+              updateClusters(assignments, data);
             }
 
           // 2) --> cluster step
@@ -91,10 +91,28 @@ namespace gmm
             }
           // check if an assignment changed --> if not we are done
           if (!changed)
-            break;
+            {
+              std::cout << "No assignment changed .. kmeans finished after " << iter
+                  << " iterations" << std::endl;
+              break;
+            }
+
         }
 
       initialized_ = true;
+
+      // START DEBUG ONLY
+
+      for (int i = 0; i < num_states_; ++i)
+        {
+          std::cout << "afterKMEANS: mean of state " << i << ":" << std::endl;
+          std::cout << gaussians_[i].getMean().transpose() << std::endl;
+          std::cout << "covariance:" << std::endl;
+          std::cout << gaussians_[i].getCovariance() << std::endl;
+        }
+
+      // END DEBUG ONLY
+
       return *this;
     }
 
@@ -105,8 +123,8 @@ namespace gmm
     {
       assert(axis >= 0 && axis < DIM);
       // first calculate mean along the selected axis
-      g_float min = 1e7;
-      g_float max = -1e7;
+      g_float min = GFLOAT_MAX;
+      g_float max = GFLOAT_MIN;
       for (int i = 0; i < (int) data.size(); ++i)
         {
           g_float tmp = data[i](axis);
@@ -121,7 +139,7 @@ namespace gmm
         {
           // calculate desired value
           g_float desired = (max - min) * i / num_states_ + min;
-          g_float best_dist = 1e7;
+          g_float best_dist = GFLOAT_MAX;
           int best = 0;
           // find data point closest to this one
           for (int j = 0; j < int(data.size()); ++j)
@@ -189,7 +207,7 @@ namespace gmm
       //#pragma omp parallel for
       for (int i = 0; i < (int) pats.size(); ++i)
         { // for each pattern find the best assignment to a prototype
-          g_float dist = 1e7;
+          g_float dist = GFLOAT_MAX;
           // search through all cluster centers
           for (int g_idx = 0; g_idx < (int) gaussians_.size(); ++g_idx)
             {
@@ -228,13 +246,18 @@ namespace gmm
         DIM>::VectorType>& pats)
     {
       std::vector<int> patterns_per_cluster(num_states_);
+      std::vector<typename Gaussian<DIM>::MatrixType> tmp_covar(num_states_);
+      typename Gaussian<DIM>::VectorType tmp;
       int curr_assignment = 0;
 
       for (int i = 0; i < num_states_; i++)
         { // reset pattern per cluster counts
           patterns_per_cluster[i] = 0;
+          gaussians_[i].mean().setZero();
+          tmp_covar[i].setZero();
         }
 
+      // update the mean
       for (int i = 0; i < (int) pats.size(); i++)
         { // traverse all training patterns
           curr_assignment = assignments[i];
@@ -246,14 +269,34 @@ namespace gmm
           //    << patterns_per_cluster[curr_assignment] << " assigned patterns");
         }
 
-      //#pragma omp parallel for
       for (int i = 0; i < num_states_; i++)
-        { // normalize all prototype positions to get the proper mean of the pattern vectors
+        { // normalize mean
           if (patterns_per_cluster[i] > 0.)
             { // beware of the evil division by zero :)
-              gaussians_[curr_assignment].mean()
-                  /= (patterns_per_cluster[i] > 0) ? patterns_per_cluster[i] : 1.;
+              gaussians_[i].mean() /= patterns_per_cluster[i];
             }
+        }
+
+      // update the covariance matrix
+      for (int i = 0; i < (int) pats.size(); i++)
+        { // traverse all training patterns
+          curr_assignment = assignments[i];
+          // update covariance of closest prototype
+          tmp = pats[i] - gaussians_[curr_assignment].mean();
+          tmp_covar[curr_assignment] += tmp * tmp.transpose();
+        }
+
+      for (int i = 0; i < num_states_; i++)
+        { // normalize covariance
+          if (patterns_per_cluster[i] > 0.)
+            { // beware of the evil division by zero :)
+              tmp_covar[i] /= patterns_per_cluster[i];
+            }
+          else
+            {
+              tmp_covar[i] = Gaussian<DIM>::MatrixType::Identity();
+            }
+          gaussians_[i].setCovariance(tmp_covar[i]);
         }
       //ROS_DEBUG("DONE updating kmeans");
     }
@@ -273,6 +316,7 @@ namespace gmm
           accum += priors_[state];
           ++state;
         }
+      --state;
       // finally draw from the distribution belonging to the selected state
       return gaussians_[state].draw(result);
     }

@@ -42,8 +42,8 @@ namespace gmm
 
   template<int DIM, int P_DIM>
     void
-    GMR<DIM, P_DIM>::query(const typename Gaussian<DIM>::VectorType &input,
-        const typename Gaussian<P_DIM>::VectorType &sample)
+    GMR<DIM, P_DIM>::query(const typename Gaussian<DIM-P_DIM>::VectorType &input,
+        typename Gaussian<P_DIM>::VectorType &sample)
     {
       if (!initialized_ || !model_)
         return;
@@ -82,7 +82,7 @@ namespace gmm
     }
   template<int DIM, int P_DIM>
     void
-    GMR<DIM, P_DIM>::getConditionalDistribution(const typename Gaussian<DIM>::VectorType &input,
+    GMR<DIM, P_DIM>::getConditionalDistribution(const typename Gaussian<DIM - P_DIM>::VectorType &input,
         Gaussian<P_DIM> &result) const
     {
       g_float partition;

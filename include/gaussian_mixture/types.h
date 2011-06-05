@@ -3,6 +3,8 @@
 
 namespace gmm
 {
+  const int GFLOAT_MIN = -1e7;
+  const int GFLOAT_MAX = 1e7;
   typedef float g_float;
 
   // gaussian definition

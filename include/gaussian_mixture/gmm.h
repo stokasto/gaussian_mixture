@@ -6,6 +6,7 @@
 
 #include <Eigen/Core>
 #include <vector>
+#include <iostream>
 
 namespace gmm
 {

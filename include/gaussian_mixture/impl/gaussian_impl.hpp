@@ -45,8 +45,8 @@ namespace gmm
       // finally calculate pdf response
       res *= 0.5;
       res = exp(-res) / partition_;
-      if (res == 0.)
-        res = -1e7;
+      //if (res == 0.)
+      //  res = 1e-9;
       return res;
     }
 

@@ -20,7 +20,7 @@ namespace gmm
       std::vector<GaussianConverter<DIM, P_DIM> > converter_;
       // storage for marginal and conditional distributions extracted from the model
       std::vector<Gaussian<DIM-P_DIM> > marginalGaussians_;
-      std::vector<Gaussian<DIM> > condGaussians_;
+      std::vector<Gaussian<P_DIM> > condGaussians_;
       // for convenience --> should be == condGaussians_.size()
       int num_states_;
       Eigen::VectorXd weights_;
@@ -37,10 +37,10 @@ namespace gmm
       setInputGMM(const GMM<DIM> &model);
 
       void
-      query(const typename Gaussian<DIM>::VectorType &input,
-          const typename Gaussian<P_DIM>::VectorType &sample);
+      query(const typename Gaussian<DIM-P_DIM>::VectorType &input,
+          typename Gaussian<P_DIM>::VectorType &sample);
       void
-      getConditionalDistribution(const typename Gaussian<DIM>::VectorType &input,
+      getConditionalDistribution(const typename Gaussian<DIM-P_DIM>::VectorType &input,
           Gaussian<P_DIM> &result) const;
       const GMM<DIM> &
       getInputGMM() const;

@@ -42,17 +42,32 @@ namespace gmm
           for (state = 0; state < num_states_; ++state)
             {
               // query pdf of respective gaussian
+              //std::cout << "distance: " << (data[iter] - model_->gaussian(state).getMean()).norm() << " pdf: " << model_->gaussian(state).pdf(data[iter]) << std::endl;
               tmp_pdf_[state] = model_->gaussian(state).pdf(data[iter]);
               // and accumulate likeliehood
               likeliehood += model_->getPrior(state) * tmp_pdf_[state];
             }
           log_likeliehood += log(likeliehood);
 
-          // now that we now the overall likeliehood we can calculate
+          // now that we know the overall likeliehood we can calculate
           // the weighted likeliehood that a given state produced the data point
-          storage_.col(iter) = model_->getPriors().array() * tmp_pdf_.array() / likeliehood;
+          storage_.col(iter) = model_->getPriors().array() * tmp_pdf_.array();
+          if (likeliehood != 0.)
+            { // beware of division by 0
+              storage_.col(iter) /= likeliehood;
+            }
+          // limit likeliehood to prevent underflow
+          for (int i = 0; i < num_states_; ++i)
+            {
+              if (storage_.col(iter)(i) < GFLOAT_MIN)
+                {
+                  storage_.col(iter)(i) = GFLOAT_MIN;
+                }
+            }
+          //std::cout << "likeliehoods for " << iter << ":" << std::endl;
+          //std::cout << storage_.col(iter).transpose() << std::endl;
         }
-      return log_likeliehood;
+      return log_likeliehood / data.size();
     }
 
   template<int DIM>
@@ -66,7 +81,7 @@ namespace gmm
       typename Gaussian<DIM>::MatrixType covariance;
       for (state = 0; state < num_states_; ++state)
         {
-          g_float likeliehood = 0;
+          g_float likeliehood = 0.;
           // reset prior
           model_->setPrior(state, 0.);
           // reset mean
@@ -78,6 +93,7 @@ namespace gmm
           for (iter = 0; iter < (int) data.size(); ++iter)
             {
               // --> mean as weighted sum
+              //std::cout << "likeliehood for " << state << " point " << iter << ": " << storage_(state, iter) << std::endl;
               mean += storage_(state, iter) * data[iter];
               likeliehood += storage_(state, iter);
             }
@@ -92,6 +108,8 @@ namespace gmm
           // normalize covariance
           covariance /= likeliehood;
           // set new mean and covariance
+          std::cout << "new mean for state " << state << ":" << std::endl;
+          std::cout << mean.transpose() << std::endl;
           model_->gaussian(state).setMean(mean).setCovariance(covariance);
           // set the prior to be the overall likeliehood
           model_->setPrior(state, likeliehood / data.size());
