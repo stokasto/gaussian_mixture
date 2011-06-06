@@ -430,136 +430,6 @@ namespace gmm
       initialized_ = true;
     }
 
-#ifdef GMM_ROS
-
-  template<int DIM>
-  bool
-  GMM<DIM>::fromMessage(const gaussian_mixture::GaussianMixtureModel &msg)
-    {
-      if (msg.dim != DIM)
-        {
-          ERROR_STREAM("cannot initialize gmm of dim " << DIM << " from model with dim " << msg.dim);
-          return false;
-        }
-      if (msg.num_states < 1)
-        {
-          ERROR_STREAM("cannot read model with 0 states from message!");
-          return false;
-        }
-      bool res = true;
-      setNumStates(msg.num_states);
-      initialized_ = msg.initialized;
-
-      // copy prior probabilities
-      for (int i = 0; i < num_states_; ++i)
-        {
-          priors_(i) = msg.priors[i];
-        }
-
-      // read all gaussians from message
-      for (int i = 0; i < num_states_; ++i)
-        {
-          res &= gaussians_[i].fromMessage(msg.gaussians[i]);
-          if (!res) // fail early
-          return false;
-        }
-      return res;
-    }
-
-  template<int DIM>
-  bool
-  GMM<DIM>::toMessage(gaussian_mixture::GaussianMixtureModel &msg) const
-    {
-      if (num_states_ < 1)
-        {
-          ERROR_STREAM("cannot write model with 0 states to message!");
-          return false;
-        }
-      bool res = true;
-      msg.dim = DIM;
-      msg.num_states = num_states_;
-      msg.initialized = initialized_;
-
-      // copy prior probabilities
-      msg.priors.resize(num_states_);
-      for (int i = 0; i < num_states_; ++i)
-        {
-          msg.priors[i] = priors_(i);
-        }
-
-      msg.gaussians.resize(num_states_);
-      // write all gaussians to a message
-      for (int i = 0; i < num_states_; ++i)
-        {
-          res &= gaussians_[i].toMessage(msg.gaussians[i]);
-          if (!res) // fail early
-          return false;
-        }
-      return res;
-    }
-
-  template<int DIM>
-  bool
-  GMM<DIM>::toBag(const std::string &bag_file)
-    {
-      try
-        {
-          rosbag::Bag bag(bag_file, rosbag::bagmode::Write);
-          gaussian_mixture::GaussianMixtureModel msg;
-          if (!toMessage(msg))
-            {
-              ERROR_STREAM("Could not convert GMM to message.");
-              return false;
-            }
-          bag.write("gaussian_mixture_model", ros::Time::now(), msg);
-          bag.close();
-        }
-      catch (rosbag::BagIOException e)
-        {
-          ROS_ERROR("Could not open bag file %s: %s", bag_file.c_str(), e.what());
-          return false;
-        }
-      return true;
-    }
-
-  template<int DIM>
-  bool
-  GMM<DIM>::fromBag(const std::string &bag_file)
-    {
-      try
-        {
-          rosbag::Bag bag(bag_file, rosbag::bagmode::Read);
-          rosbag::View view(bag, rosbag::TopicQuery("gaussian_mixture_model"));
-          int count = 0;
-          BOOST_FOREACH(rosbag::MessageInstance const msg, view)
-            {
-              if (count > 1)
-                {
-                  ERROR_STREAM("More than one GMM stored in bag file!");
-                  return false;
-                }
-              ++count;
-
-              gaussian_mixture::GaussianMixtureModelConstPtr model = msg.instantiate<
-              gaussian_mixture::GaussianMixtureModelConstPtr> ();
-              if (!fromMessage(*model))
-                {
-                  ERROR_STREAM("Could not initialize GMM from message!");
-                  return false;
-                }
-            }
-          bag.close();
-        }
-      catch (rosbag::BagIOException e)
-        {
-          ROS_ERROR("Could not open bag file %s: %s", bag_file.c_str(), e.what());
-          return false;
-        }
-      return true;
-    }
-
-#endif
-
   template<int DIM>
     bool
     GMM<DIM>::toBinaryFile(const std::string &fname)
@@ -604,7 +474,7 @@ namespace gmm
       catch (std::ifstream::failure& e)
         {
           ERROR_STREAM((boost::format("Failed to load Gaussian Mixture Model from file '%s'")
-                  % fname).str());
+              % fname).str());
           return false;
         }
       return res;
@@ -619,8 +489,8 @@ namespace gmm
       in.read((char*) (&dim), sizeof(int));
       if (dim != DIM)
         {
-          ERROR_STREAM("called fromBinaryFile with message of invalid dimension: "
-              << dim << " this dim: " << DIM);
+          ERROR_STREAM("called fromBinaryFile with message of invalid dimension: " << dim
+              << " this dim: " << DIM);
           return false;
         }
       in.read((char*) (&num_states_), sizeof(int));
@@ -635,6 +505,136 @@ namespace gmm
         }
       return res;
     }
+
+#ifdef GMM_ROS
+  template<int DIM>
+    bool
+    GMM<DIM>::fromMessage(const gaussian_mixture::GaussianMixtureModel &msg)
+    {
+      if (msg.dim != DIM)
+        {
+          ERROR_STREAM("cannot initialize gmm of dim " << DIM << " from model with dim " << msg.dim);
+          return false;
+        }
+      if (msg.num_states < 1)
+        {
+          ERROR_STREAM("cannot read model with 0 states from message!");
+          return false;
+        }
+      bool res = true;
+      setNumStates(msg.num_states);
+      initialized_ = msg.initialized;
+
+      // copy prior probabilities
+      for (int i = 0; i < num_states_; ++i)
+        {
+          priors_(i) = msg.priors[i];
+        }
+
+      // read all gaussians from message
+      for (int i = 0; i < num_states_; ++i)
+        {
+          res &= gaussians_[i].fromMessage(msg.gaussians[i]);
+          if (!res) // fail early
+            return false;
+        }
+      return res;
+    }
+
+  template<int DIM>
+    bool
+    GMM<DIM>::toMessage(gaussian_mixture::GaussianMixtureModel &msg) const
+    {
+      if (num_states_ < 1)
+        {
+          ERROR_STREAM("cannot write model with 0 states to message!");
+          return false;
+        }
+      bool res = true;
+      msg.dim = DIM;
+      msg.num_states = num_states_;
+      msg.initialized = initialized_;
+
+      // copy prior probabilities
+      msg.priors.resize(num_states_);
+      for (int i = 0; i < num_states_; ++i)
+        {
+          msg.priors[i] = priors_(i);
+        }
+
+      msg.gaussians.resize(num_states_);
+      // write all gaussians to a message
+      for (int i = 0; i < num_states_; ++i)
+        {
+          res &= gaussians_[i].toMessage(msg.gaussians[i]);
+          if (!res) // fail early
+            return false;
+        }
+      return res;
+    }
+
+  template<int DIM>
+    bool
+    GMM<DIM>::toBag(const std::string &bag_file)
+    {
+      try
+        {
+          rosbag::Bag bag(bag_file, rosbag::bagmode::Write);
+          gaussian_mixture::GaussianMixtureModel msg;
+          if (!toMessage(msg))
+            {
+              ERROR_STREAM("Could not convert GMM to message.");
+              return false;
+            }
+          bag.write("gaussian_mixture_model", ros::Time::now(), msg);
+          bag.close();
+        }
+      catch (rosbag::BagIOException e)
+        {
+          ROS_ERROR("Could not open bag file %s: %s", bag_file.c_str(), e.what());
+          return false;
+        }
+      return true;
+    }
+
+  template<int DIM>
+    bool
+    GMM<DIM>::fromBag(const std::string &bag_file)
+    {
+      try
+        {
+          rosbag::Bag bag(bag_file, rosbag::bagmode::Read);
+          rosbag::View view(bag, rosbag::TopicQuery("gaussian_mixture_model"));
+          int count = 0;
+          BOOST_FOREACH(rosbag::MessageInstance const msg, view)
+          {
+            if (count > 1)
+            {
+              ERROR_STREAM("More than one GMM stored in bag file!");
+              return false;
+            }
+          ++count;
+
+          gaussian_mixture::GaussianMixtureModelConstPtr model = msg.instantiate<
+          gaussian_mixture::GaussianMixtureModelConstPtr> ();
+          if (!fromMessage(*model))
+            {
+              ERROR_STREAM("Could not initialize GMM from message!");
+              return false;
+            }
+        }
+      bag.close();
+    }
+  catch (rosbag::BagIOException e)
+    {
+      ROS_ERROR("Could not open bag file %s: %s", bag_file.c_str(), e.what());
+      return false;
+    }
+  return true;
+}
+
+#endif
+
 }
 
 #endif /* GMM_IMPL_HPP_ */
