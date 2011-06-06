@@ -9,6 +9,7 @@
 #include <Eigen/Core>
 #include <vector>
 #include <iostream>
+#include <fstream>
 
 #ifdef GMM_ROS
 #include <rosbag/bag.h>
@@ -113,7 +114,14 @@ namespace gmm
       bool
       fromBag(const std::string &bag_file);
 #endif
-      // TODO: toFile methods
+      bool
+      toBinaryFile(const std::string &fname);
+      bool
+      fromBinaryFile(const std::string &fname);
+      bool
+      toStream(std::ofstream &out);
+      bool
+      fromStream(std::ifstream &in);
 
     };
 }

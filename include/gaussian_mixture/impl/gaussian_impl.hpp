@@ -117,23 +117,26 @@ namespace gmm
     {
       if (msg.dim != DIM)
         {
-          ERROR_STREAM("called fromMessage with message of invalid dimension: "
-              << msg.dim << " this dim: " << DIM);
+          ERROR_STREAM("called fromMessage with message of invalid dimension: " << msg.dim
+              << " this dim: " << DIM);
           return false;
         }
-
+      VectorType mean;
+      MatrixType covariance;
       // copy mean from message
       for (int i = 0; i < DIM; ++i)
-        mean_(i) = msg.mean[i];
+        mean(i) = msg.mean[i];
 
       // copy covariance matrix from message
       int idx = 0;
       for (int i = 0; i < DIM; ++i)
         for (int j = 0; j < DIM; ++j)
           {
-            covariance_(i, j) = msg.covariance[idx];
+            covariance(i, j) = msg.covariance[idx];
             ++idx;
           }
+      setMean(mean);
+      setCovariance(covariance);
       return true;
     }
 
@@ -194,33 +197,95 @@ namespace gmm
           rosbag::View view(bag, rosbag::TopicQuery("gaussian"));
           int count = 0;
           BOOST_FOREACH(rosbag::MessageInstance const msg, view)
+{          if (count > 1)
             {
-              if (count > 1)
-                {
-                  ERROR_STREAM("More than one Gaussian stored in bag file!");
-                  return false;
-                }
-              ++count;
-
-              gaussian_mixture::GaussianModelConstPtr model = msg.instantiate<
-              gaussian_mixture::GaussianModel> ();
-              if (!fromMessage(*model))
-                {
-                  ERROR_STREAM("Could not initialize Gaussian from message!");
-                  return false;
-                }
+              ERROR_STREAM("More than one Gaussian stored in bag file!");
+              return false;
             }
-          bag.close();
+          ++count;
+
+          gaussian_mixture::GaussianModelConstPtr model = msg.instantiate<
+          gaussian_mixture::GaussianModel> ();
+          if (!fromMessage(*model))
+            {
+              ERROR_STREAM("Could not initialize Gaussian from message!");
+              return false;
+            }
         }
-      catch (rosbag::BagIOException e)
-        {
-          ROS_ERROR("Could not open bag file %s: %s", bag_file.c_str(), e.what());
-          return false;
-        }
-      return true;
+      bag.close();
     }
+  catch (rosbag::BagIOException e)
+    {
+      ROS_ERROR("Could not open bag file %s: %s", bag_file.c_str(), e.what());
+      return false;
+    }
+  return true;
+}
 
 #endif
+
+template<int DIM>
+bool
+Gaussian<DIM>::toBinaryFile(const std::string &fname)
+{
+  std::ofstream out(fname.c_str(), std::ios_base::binary);
+  return toStream(out);
+}
+
+template<int DIM>
+bool
+Gaussian<DIM>::toStream(std::ofstream &out)
+{
+  int dim = DIM;
+  out.write((char*) (&dim), sizeof(int));
+  out.write((char*) (&mean_), sizeof(VectorType));
+  out.write((char*) (&covariance_), sizeof(MatrixType));
+  return true;
+}
+
+template<int DIM>
+bool
+Gaussian<DIM>::fromBinaryFile(const std::string &fname)
+{
+  std::ifstream in;
+  bool res = true;
+  in.exceptions(std::ifstream::eofbit | std::ifstream::failbit | std::ifstream::badbit);
+
+  try
+    {
+      in.open(fname.c_str(), std::ios_base::binary);
+      res &= fromStream(in);
+    }
+  catch (std::ifstream::failure& e)
+    {
+      ERROR_STREAM((boost::format("Failed to load Gaussian Model from file '%s'")
+              % fname).str());
+      return false;
+    }
+  return res;
+}
+
+template<int DIM>
+bool
+Gaussian<DIM>::fromStream(std::ifstream &in)
+{
+  int dim;
+  VectorType mean;
+  MatrixType covariance;
+  in.read((char*) (&dim), sizeof(int));
+  if (dim != DIM)
+    {
+      ERROR_STREAM("called fromBinaryFile with message of invalid dimension: "
+          << dim << " this dim: " << DIM);
+      return false;
+    }
+  in.read((char*) (&mean), sizeof(VectorType));
+  in.read((char*) (&covariance), sizeof(MatrixType));
+  setMean(mean);
+  setCovariance(covariance);
+  return true;
+}
+
 }
 
 #endif /* GAUSSIAN_IMPL_HPP_ */

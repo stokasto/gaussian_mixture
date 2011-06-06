@@ -4,6 +4,8 @@
 #include <limits>
 #include <iostream>
 
+#define GMM_ROS 1
+
 #ifdef GMM_ROS
 #include <ros/console.h>
 #endif
