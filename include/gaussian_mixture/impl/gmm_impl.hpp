@@ -434,8 +434,11 @@ namespace gmm
     bool
     GMM<DIM>::toBinaryFile(const std::string &fname)
     {
+      bool res = true;
       std::ofstream out(fname.c_str(), std::ios_base::binary);
-      return toStream(out);
+      res &= toStream(out);
+      out.close();
+      return res;
     }
 
   template<int DIM>
@@ -475,8 +478,10 @@ namespace gmm
         {
           ERROR_STREAM((boost::format("Failed to load Gaussian Mixture Model from file '%s'")
               % fname).str());
+          in.close();
           return false;
         }
+      in.close();
       return res;
     }
 
@@ -489,11 +494,13 @@ namespace gmm
       in.read((char*) (&dim), sizeof(int));
       if (dim != DIM)
         {
-          ERROR_STREAM("called fromBinaryFile with message of invalid dimension: " << dim
+          ERROR_STREAM("called GMM.fromBinaryFile() with message of invalid dimension: " << dim
               << " this dim: " << DIM);
           return false;
         }
       in.read((char*) (&num_states_), sizeof(int));
+      // set number of states such that gaussians_ and priors_ is allocated correctly
+      setNumStates(num_states_);
       in.read((char*) (&initialized_), sizeof(bool));
       for (int i = 0; i < priors_.size(); ++i)
         {
@@ -577,6 +584,7 @@ namespace gmm
     bool
     GMM<DIM>::toBag(const std::string &bag_file)
     {
+      ros::Time::init();
       try
         {
           rosbag::Bag bag(bag_file, rosbag::bagmode::Write);
@@ -616,7 +624,7 @@ namespace gmm
           ++count;
 
           gaussian_mixture::GaussianMixtureModelConstPtr model = msg.instantiate<
-          gaussian_mixture::GaussianMixtureModelConstPtr> ();
+          gaussian_mixture::GaussianMixtureModel> ();
           if (!fromMessage(*model))
             {
               ERROR_STREAM("Could not initialize GMM from message!");

@@ -3,7 +3,10 @@
 #include <gaussian_mixture/gmm.h>
 #include <gaussian_mixture/GaussianModel.h>
 
+#include <stdio.h>
+
 #include <vector>
+#include <string>
 #include <Eigen/Dense>
 #include <gtest/gtest.h>
 
@@ -26,20 +29,57 @@ template<int DIM>
       }
   }
 
+template<int DIM>
+  Gaussian<DIM>
+  getRandGaussian()
+  {
+    typename Gaussian<DIM>::MatrixType tmp = Gaussian<DIM>::MatrixType::Random();
+    typename Gaussian<DIM>::VectorType mean = Gaussian<DIM>::VectorType::Random();
+    typename Gaussian<DIM>::MatrixType var = tmp.transpose() * tmp;
+    return Gaussian<DIM> ().setMean(mean).setCovariance(var);
+  }
+
+template<int DIM>
+  GMM<DIM>
+  getRandGMM()
+  {
+    Gaussian<3>::MatrixType tmp = Gaussian<3>::MatrixType::Random();
+    Gaussian<3>::VectorType mean1 = Gaussian<3>::VectorType::Random();
+    Gaussian<3>::MatrixType var1 = tmp.transpose() * tmp;
+    Gaussian<3> gauss = Gaussian<3> ().setMean(mean1).setCovariance(var1);
+
+    tmp = Gaussian<3>::MatrixType::Random();
+    Gaussian<3>::VectorType mean2 = Gaussian<3>::VectorType::Random();
+    Gaussian<3>::MatrixType var2 = tmp.transpose() * tmp;
+    Gaussian<3> gauss2 = Gaussian<3> ().setMean(mean2).setCovariance(var2);
+
+    GMM<3> gmm = GMM<3> ().setNumStates(2);
+    gmm.setMean(0, mean1).setCovariance(0, var1);
+    gmm.setMean(1, mean2).setCovariance(1, var2);
+    return gmm;
+  }
+
+std::string
+getTmpName()
+{
+  char buffer[L_tmpnam];
+  tmpnam(buffer);
+
+  // create a proper string from the temporary name
+  return std::string(buffer);
+}
+
 TEST(Gaussian, toMessage)
 {
-  Gaussian<3>::MatrixType tmp = Gaussian<3>::MatrixType::Random();
-  Gaussian<3>::VectorType mean = Gaussian<3>::VectorType::Random();
-  Gaussian<3>::MatrixType var = tmp.transpose() * tmp;
-  Gaussian<3> gauss = Gaussian<3> ().setMean(mean).setCovariance(var);
+  Gaussian<3> gauss = getRandGaussian<3>();
 
   gaussian_mixture::GaussianModel msg;
   // write to message
-  gauss.toMessage(msg);
+  EXPECT_TRUE(gauss.toMessage(msg));
 
   Gaussian<3> gauss2;
   // read from message again
-  gauss2.fromMessage(msg);
+  EXPECT_TRUE(gauss2.fromMessage(msg));
 
   EXPECT_EQ(msg.dim, 3);
   gaussEq(gauss, gauss2);
@@ -47,34 +87,98 @@ TEST(Gaussian, toMessage)
 
 TEST(GMM, toMessage)
 {
-  Gaussian<3>::MatrixType tmp = Gaussian<3>::MatrixType::Random();
-  Gaussian<3>::VectorType mean1 = Gaussian<3>::VectorType::Random();
-  Gaussian<3>::MatrixType var1 = tmp.transpose() * tmp;
-  Gaussian<3> gauss = Gaussian<3> ().setMean(mean1).setCovariance(var1);
-
-  tmp = Gaussian<3>::MatrixType::Random();
-  Gaussian<3>::VectorType mean2 = Gaussian<3>::VectorType::Random();
-  Gaussian<3>::MatrixType var2 = tmp.transpose() * tmp;
-  Gaussian<3> gauss2 = Gaussian<3> ().setMean(mean2).setCovariance(var2);
-
-  GMM<3> gmm = GMM<3>().setNumStates(2);
-  gmm.setMean(0,mean1).setCovariance(0, var1);
-  gmm.setMean(1,mean2).setCovariance(1, var2);
+  GMM<3> gmm = getRandGMM<3>();
 
   gaussian_mixture::GaussianMixtureModel msg;
   // write to message
-  gmm.toMessage(msg);
+  EXPECT_TRUE(gmm.toMessage(msg));
   EXPECT_FALSE(msg.initialized);
   msg.initialized = true;
   gmm.forceInitialize();
   // and read again
   GMM<3> gmm2;
-  gmm2.fromMessage(msg);
+  EXPECT_TRUE(gmm2.fromMessage(msg));
 
   EXPECT_EQ(msg.dim, 3);
   EXPECT_EQ(msg.num_states, 2);
   EXPECT_EQ(gmm.getNumStates(), gmm2.getNumStates());
 
+  for(int i = 0; i < 2; ++i)
+    {
+      EXPECT_EQ(gmm.getPrior(i), gmm2.getPrior(i));
+      gaussEq(gmm.getGaussian(i), gmm2.getGaussian(i));
+    }
+}
+
+TEST(Gaussian, toBinFile)
+{
+  std::string fname(getTmpName());
+
+  Gaussian<3> gauss = getRandGaussian<3> ();
+
+  // write to message
+  ASSERT_TRUE(gauss.toBinaryFile(fname));
+
+  Gaussian<3> gauss2;
+  // read from message again
+  ASSERT_TRUE(gauss2.fromBinaryFile(fname));
+
+  gaussEq(gauss, gauss2);
+}
+
+TEST(GMM, toBinFile)
+{
+  std::string fname(getTmpName());
+
+  GMM<3> gmm = getRandGMM<3>();
+
+  gmm.forceInitialize();
+
+  // write to file
+  ASSERT_TRUE(gmm.toBinaryFile(fname));
+  // and read again
+  GMM<3> gmm2;
+  ASSERT_TRUE(gmm2.fromBinaryFile(fname));
+
+  EXPECT_EQ(gmm.getNumStates(), gmm2.getNumStates());
+  for(int i = 0; i < 2; ++i)
+    {
+      EXPECT_EQ(gmm.getPrior(i), gmm2.getPrior(i));
+      gaussEq(gmm.getGaussian(i), gmm2.getGaussian(i));
+    }
+}
+
+TEST(Gaussian, toBagFile)
+{
+  std::string fname(getTmpName());
+
+  Gaussian<3> gauss = getRandGaussian<3> ();
+
+  // write to message
+  ASSERT_TRUE(gauss.toBag(fname));
+
+  Gaussian<3> gauss2;
+  // read from message again
+  ASSERT_TRUE(gauss2.fromBag(fname));
+
+  gaussEq(gauss, gauss2);
+}
+
+TEST(GMM, toBagFile)
+{
+  std::string fname(getTmpName());
+
+  GMM<3> gmm = getRandGMM<3>();
+
+  gmm.forceInitialize();
+
+  // write to file
+  ASSERT_TRUE(gmm.toBag(fname));
+  // and read again
+  GMM<3> gmm2;
+  ASSERT_TRUE(gmm2.fromBag(fname));
+
+  EXPECT_EQ(gmm.getNumStates(), gmm2.getNumStates());
   for(int i = 0; i < 2; ++i)
     {
       EXPECT_EQ(gmm.getPrior(i), gmm2.getPrior(i));

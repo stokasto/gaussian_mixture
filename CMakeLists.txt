@@ -10,7 +10,7 @@ include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 
 set(ROS_BUILD_TYPE RelWithDebInfo)
 
-set(ROS_COMPILE_FLAGS "-W -Wall -Wextra -pedantic")
+#set(ROS_COMPILE_FLAGS "-W -Wall -Wextra -pedantic")
 
 rosbuild_init()
 

@@ -113,8 +113,11 @@ namespace gmm
     bool
     Gaussian<DIM>::toBinaryFile(const std::string &fname)
     {
+      bool res = true;
       std::ofstream out(fname.c_str(), std::ios_base::binary);
-      return toStream(out);
+      res &= toStream(out);
+      out.close();
+      return res;
     }
 
   template<int DIM>
@@ -145,8 +148,10 @@ namespace gmm
         {
           ERROR_STREAM(
               (boost::format("Failed to load Gaussian Model from file '%s'") % fname).str());
+          in.close();
           return false;
         }
+      in.close();
       return res;
     }
 
@@ -160,8 +165,8 @@ namespace gmm
       in.read((char*) (&dim), sizeof(int));
       if (dim != DIM)
         {
-          ERROR_STREAM("called fromBinaryFile with message of invalid dimension: " << dim
-              << " this dim: " << DIM);
+          ERROR_STREAM("called Gaussian.fromBinaryFile() with message of invalid dimension: "
+              << dim << " this dim: " << DIM);
           return false;
         }
       in.read((char*) (&mean), sizeof(VectorType));
@@ -229,6 +234,7 @@ namespace gmm
     bool
     Gaussian<DIM>::toBag(const std::string &bag_file)
     {
+      ros::Time::init();
       try
         {
           rosbag::Bag bag(bag_file, rosbag::bagmode::Write);
@@ -259,8 +265,7 @@ namespace gmm
           rosbag::View view(bag, rosbag::TopicQuery("gaussian"));
           int count = 0;
           BOOST_FOREACH(rosbag::MessageInstance const msg, view)
-          {
-            if (count > 1)
+{          if (count > 1)
             {
               ERROR_STREAM("More than one Gaussian stored in bag file!");
               return false;
