@@ -98,7 +98,7 @@ namespace gmm
               likeliehood += storage_(state, iter);
             }
           // normalize mean
-          mean /= likeliehood;
+          mean /= (likeliehood > 0.) ? likeliehood : 1.;
           // next calculate covariance maximizing the expectation
           for (iter = 0; iter < (int) data.size(); ++iter)
             {
@@ -106,7 +106,7 @@ namespace gmm
               covariance += storage_(state, iter) * (tmp * tmp.transpose());
             }
           // normalize covariance
-          covariance /= likeliehood;
+          covariance /= (likeliehood > 0.) ? likeliehood : 1.;
           // set new mean and covariance
           DEBUG_STREAM("new mean for state " << state << ":");
           DEBUG_STREAM(mean.transpose());
@@ -121,6 +121,7 @@ namespace gmm
             {
               rand_pos = rand() % data.size();
               model_->gaussian(state).setMean(data[rand_pos]);
+              // TODO: should we ensure that prior is not 0 here ?
               do_continue = true;
             }
         }
