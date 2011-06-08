@@ -7,18 +7,30 @@
 namespace gmm
 {
 
+  /** Computes a random number in range [0; 1].
+   *
+   * @return returns a random sormal from a uniform distribution
+   */
   g_float
   random_uniform_0_1()
   {
     return g_float(rand()) / g_float(RAND_MAX);
   }
 
+  /** Computes a random number in range [0; k].
+   *
+   * @return returns a random sormal from a uniform distribution
+   */
   g_float
   random_uniform_0_k(g_float k)
   {
     return random_uniform_0_1() * k;
   }
 
+  /** Computes a random number in range [-k; k].
+   *
+   * @return returns a random sormal from a uniform distribution
+   */
   g_float
   random_uniform_mk_k(g_float k)
   {
@@ -28,9 +40,13 @@ namespace gmm
     return random_uniform_0_k(k) * sign;
   }
 
-  // this function computes a random number taken from a normal distribution
-  // using the Box-Mueller method. NOTE: a rejection method is used here,
-  // as it is much faster than claculating sin and cos
+  /** This function computes a random number taken from a normal distribution.
+   * It uses the Box-Mueller method.
+   * NOTE: a rejection method is used here,
+   *       as it is much faster than claculating sin and cos
+   *
+   * @return returns a sample from a 1d normal distribution
+   */
   g_float
   random_normal()
   {
@@ -51,6 +67,10 @@ namespace gmm
     return v1 * sqrt((-2.0f * log(r)) / r);
   }
 
+  /** Computes a 1d normal distribution with mean mu and stddev sigma.
+   *
+   * @return returns a sample from a 1d normal distribution
+   */
   g_float
   random_normal(g_float mu, g_float sigma)
   {
