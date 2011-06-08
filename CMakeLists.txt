@@ -14,6 +14,12 @@ set(ROS_BUILD_TYPE RelWithDebInfo)
 
 rosbuild_init()
 
+# configure ros support
+message("NOTE: configuring gaussian_mixture library WITH ros support")
+set(ROS_SWITCH GMM_ROS)
+configure_file(include/gaussian_mixture/defs.h.cmake ../include/gaussian_mixture/defs.h)
+
+
 #set the default path for built executables to the "bin" directory
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 #set the default path for built libraries to the "lib" directory

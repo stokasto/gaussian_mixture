@@ -6,7 +6,6 @@ CMakeFiles
 CMakeScripts
 CMakeCache.txt
 Makefile
-*.cmake
 ./bin
 ./build
 .cproject
