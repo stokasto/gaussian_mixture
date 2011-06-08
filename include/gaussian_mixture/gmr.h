@@ -70,7 +70,7 @@ namespace gmm
        *
        * @param input the input vector of size DIM-P_DIM
        *        for which the conditional distribution should be computed
-       * @oaram result this will be set to the resulting conditional distribution
+       * @param result this will be set to the resulting conditional distribution
        */
       void
       getConditionalDistribution(const typename Gaussian<DIM - P_DIM>::VectorType &input, Gaussian<

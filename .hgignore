@@ -13,6 +13,8 @@ Makefile
 .svn
 srv_gen
 msg_gen
+latex
+html
 *.pcd
 *.ppm
 *.png

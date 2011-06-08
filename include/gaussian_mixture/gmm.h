@@ -97,6 +97,7 @@ namespace gmm
        * This will initialize the mean and covariance of each gaussian.
        *
        * @param data the vector of training data
+       * @param max_iter the maximum number of kmeans iterations
        * @return returns a reference to this
        */
       GMM<DIM> &
@@ -106,6 +107,7 @@ namespace gmm
        *  NOTE: All gaussians will have unit variance (the Identity matrix)
        *
        * @param data the vector of training data
+       * @param axis the axis used for initialization
        * @return returns a reference to this
        */
       GMM<DIM> &
@@ -124,11 +126,11 @@ namespace gmm
       /** Set the covariance of the nth gaussian.
        *
        * @param state the gaussian for which the covariance should be changed
-       * @param covariance the new covariance matrix of dimensions DIMxDIM
+       * @param cov the new covariance matrix of dimensions DIMxDIM
        * @return returns a reference to this
        */
       GMM<DIM> &
-      setCovariance(int state, typename Gaussian<DIM>::MatrixType &cov);\
+      setCovariance(int state, typename Gaussian<DIM>::MatrixType &cov);
 
       /** Set the prior of the nth gaussian.
        *
