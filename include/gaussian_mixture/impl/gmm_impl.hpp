@@ -476,8 +476,7 @@ namespace gmm
         }
       catch (std::ifstream::failure& e)
         {
-          ERROR_STREAM((boost::format("Failed to load Gaussian Mixture Model from file '%s'")
-              % fname).str());
+          ERROR_STREAM("Failed to load Gaussian Mixture Model from file " << fname);
           in.close();
           return false;
         }

@@ -4,7 +4,9 @@
 #include <gaussian_mixture/types.h>
 #include <gaussian_mixture/gaussian.h>
 // include ros message
+#ifdef GMM_ROS
 #include <gaussian_mixture/GaussianMixtureModel.h>
+#endif
 
 #include <Eigen/Core>
 #include <vector>

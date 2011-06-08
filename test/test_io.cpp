@@ -1,10 +1,8 @@
 #include <gaussian_mixture/gaussian.h>
 #include <gaussian_mixture/gaussian_converter.h>
 #include <gaussian_mixture/gmm.h>
-#include <gaussian_mixture/GaussianModel.h>
 
 #include <stdio.h>
-
 #include <vector>
 #include <string>
 #include <Eigen/Dense>
@@ -69,46 +67,86 @@ getTmpName()
   return std::string(buffer);
 }
 
+#ifdef GMM_ROS
 TEST(Gaussian, toMessage)
-{
-  Gaussian<3> gauss = getRandGaussian<3>();
+  {
+    Gaussian<3> gauss = getRandGaussian<3>();
 
-  gaussian_mixture::GaussianModel msg;
-  // write to message
-  EXPECT_TRUE(gauss.toMessage(msg));
+    gaussian_mixture::GaussianModel msg;
+    // write to message
+    EXPECT_TRUE(gauss.toMessage(msg));
 
-  Gaussian<3> gauss2;
-  // read from message again
-  EXPECT_TRUE(gauss2.fromMessage(msg));
+    Gaussian<3> gauss2;
+    // read from message again
+    EXPECT_TRUE(gauss2.fromMessage(msg));
 
-  EXPECT_EQ(msg.dim, 3);
-  gaussEq(gauss, gauss2);
-}
+    EXPECT_EQ(msg.dim, 3);
+    gaussEq(gauss, gauss2);
+  }
 
 TEST(GMM, toMessage)
-{
-  GMM<3> gmm = getRandGMM<3>();
+  {
+    GMM<3> gmm = getRandGMM<3>();
 
-  gaussian_mixture::GaussianMixtureModel msg;
-  // write to message
-  EXPECT_TRUE(gmm.toMessage(msg));
-  EXPECT_FALSE(msg.initialized);
-  msg.initialized = true;
-  gmm.forceInitialize();
-  // and read again
-  GMM<3> gmm2;
-  EXPECT_TRUE(gmm2.fromMessage(msg));
+    gaussian_mixture::GaussianMixtureModel msg;
+    // write to message
+    EXPECT_TRUE(gmm.toMessage(msg));
+    EXPECT_FALSE(msg.initialized);
+    msg.initialized = true;
+    gmm.forceInitialize();
+    // and read again
+    GMM<3> gmm2;
+    EXPECT_TRUE(gmm2.fromMessage(msg));
 
-  EXPECT_EQ(msg.dim, 3);
-  EXPECT_EQ(msg.num_states, 2);
-  EXPECT_EQ(gmm.getNumStates(), gmm2.getNumStates());
+    EXPECT_EQ(msg.dim, 3);
+    EXPECT_EQ(msg.num_states, 2);
+    EXPECT_EQ(gmm.getNumStates(), gmm2.getNumStates());
 
-  for(int i = 0; i < 2; ++i)
-    {
-      EXPECT_EQ(gmm.getPrior(i), gmm2.getPrior(i));
-      gaussEq(gmm.getGaussian(i), gmm2.getGaussian(i));
-    }
-}
+    for(int i = 0; i < 2; ++i)
+      {
+        EXPECT_EQ(gmm.getPrior(i), gmm2.getPrior(i));
+        gaussEq(gmm.getGaussian(i), gmm2.getGaussian(i));
+      }
+  }
+
+TEST(Gaussian, toBagFile)
+  {
+    std::string fname(getTmpName());
+
+    Gaussian<3> gauss = getRandGaussian<3> ();
+
+    // write to message
+    ASSERT_TRUE(gauss.toBag(fname));
+
+    Gaussian<3> gauss2;
+    // read from message again
+    ASSERT_TRUE(gauss2.fromBag(fname));
+
+    gaussEq(gauss, gauss2);
+  }
+
+TEST(GMM, toBagFile)
+  {
+    std::string fname(getTmpName());
+
+    GMM<3> gmm = getRandGMM<3>();
+
+    gmm.forceInitialize();
+
+    // write to file
+    ASSERT_TRUE(gmm.toBag(fname));
+    // and read again
+    GMM<3> gmm2;
+    ASSERT_TRUE(gmm2.fromBag(fname));
+
+    EXPECT_EQ(gmm.getNumStates(), gmm2.getNumStates());
+    for(int i = 0; i < 2; ++i)
+      {
+        EXPECT_EQ(gmm.getPrior(i), gmm2.getPrior(i));
+        gaussEq(gmm.getGaussian(i), gmm2.getGaussian(i));
+      }
+  }
+#endif
 
 TEST(Gaussian, toBinFile)
 {
@@ -130,7 +168,7 @@ TEST(GMM, toBinFile)
 {
   std::string fname(getTmpName());
 
-  GMM<3> gmm = getRandGMM<3>();
+  GMM<3> gmm = getRandGMM<3> ();
 
   gmm.forceInitialize();
 
@@ -139,44 +177,6 @@ TEST(GMM, toBinFile)
   // and read again
   GMM<3> gmm2;
   ASSERT_TRUE(gmm2.fromBinaryFile(fname));
-
-  EXPECT_EQ(gmm.getNumStates(), gmm2.getNumStates());
-  for(int i = 0; i < 2; ++i)
-    {
-      EXPECT_EQ(gmm.getPrior(i), gmm2.getPrior(i));
-      gaussEq(gmm.getGaussian(i), gmm2.getGaussian(i));
-    }
-}
-
-TEST(Gaussian, toBagFile)
-{
-  std::string fname(getTmpName());
-
-  Gaussian<3> gauss = getRandGaussian<3> ();
-
-  // write to message
-  ASSERT_TRUE(gauss.toBag(fname));
-
-  Gaussian<3> gauss2;
-  // read from message again
-  ASSERT_TRUE(gauss2.fromBag(fname));
-
-  gaussEq(gauss, gauss2);
-}
-
-TEST(GMM, toBagFile)
-{
-  std::string fname(getTmpName());
-
-  GMM<3> gmm = getRandGMM<3>();
-
-  gmm.forceInitialize();
-
-  // write to file
-  ASSERT_TRUE(gmm.toBag(fname));
-  // and read again
-  GMM<3> gmm2;
-  ASSERT_TRUE(gmm2.fromBag(fname));
 
   EXPECT_EQ(gmm.getNumStates(), gmm2.getNumStates());
   for(int i = 0; i < 2; ++i)

@@ -4,7 +4,9 @@
 #include <gaussian_mixture/types.h>
 #include <gaussian_mixture/random.h>
 // Gaussian.h holds the message definition
+#ifdef GMM_ROS
 #include <gaussian_mixture/GaussianModel.h>
+#endif
 
 #include <Eigen/Core>
 #include <Eigen/Cholesky>

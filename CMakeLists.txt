@@ -1,41 +1,8 @@
 cmake_minimum_required(VERSION 2.4.6)
-include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 
-# Set the build type.  Options are:
-#  Coverage       : w/ debug symbols, w/o optimization, w/ code-coverage
-#  Debug          : w/ debug symbols, w/o optimization
-#  Release        : w/o debug symbols, w/ optimization
-#  RelWithDebInfo : w/ debug symbols, w/ optimization
-#  MinSizeRel     : w/o debug symbols, w/ optimization, stripped binaries
+if(${GMM_NO_ROS})
+include(CMakeLists.noros.txt)
+else(${GMM_NO_ROS})
+include(CMakeLists.ros.txt)
+endif(${GMM_NO_ROS})
 
-set(ROS_BUILD_TYPE RelWithDebInfo)
-
-#set(ROS_COMPILE_FLAGS "-W -Wall -Wextra -pedantic")
-
-rosbuild_init()
-
-# configure ros support
-message("NOTE: configuring gaussian_mixture library WITH ros support")
-set(ROS_SWITCH GMM_ROS)
-configure_file(include/gaussian_mixture/defs.h.cmake ../include/gaussian_mixture/defs.h)
-
-
-#set the default path for built executables to the "bin" directory
-set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
-#set the default path for built libraries to the "lib" directory
-set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
-
-# generate messages
-rosbuild_genmsg()
-#uncomment if you have defined services
-#rosbuild_gensrv()
-
-#common commands for building c++ executables and libraries
-#rosbuild_add_library(${PROJECT_NAME} src/example.cpp)
-#target_link_libraries(${PROJECT_NAME} another_library)
-#rosbuild_add_boost_directories()
-#rosbuild_link_boost(${PROJECT_NAME} thread)
-#rosbuild_add_executable(example examples/example.cpp)
-#target_link_libraries(example ${PROJECT_NAME})
-
-add_subdirectory(test)
