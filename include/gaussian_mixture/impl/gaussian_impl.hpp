@@ -44,7 +44,8 @@ namespace gmm
       g_float res = tmp_.dot(alpha_);
       // finally calculate pdf response
       res *= 0.5;
-      res = exp(-res) / partition_;
+      res = exp(-res);
+      res /= (partition_ > 0.) ? partition_ : 1e-7;
       //if (res == 0.)
       //  res = 1e-9;
       return res;
